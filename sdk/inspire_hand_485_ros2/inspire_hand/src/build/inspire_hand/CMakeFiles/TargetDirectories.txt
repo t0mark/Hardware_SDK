@@ -1,0 +1,11 @@
+/home/inspire001/zero_ws/src/inspire_hand/src/build/inspire_hand/CMakeFiles/uninstall.dir
+/home/inspire001/zero_ws/src/inspire_hand/src/build/inspire_hand/CMakeFiles/inspire_hand_uninstall.dir
+/home/inspire001/zero_ws/src/inspire_hand/src/build/inspire_hand/CMakeFiles/Poor_node.dir
+/home/inspire001/zero_ws/src/inspire_hand/src/build/inspire_hand/CMakeFiles/Hand_control_node.dir
+/home/inspire001/zero_ws/src/inspire_hand/src/build/inspire_hand/CMakeFiles/test.dir
+/home/inspire001/zero_ws/src/inspire_hand/src/build/inspire_hand/CMakeFiles/edit_cache.dir
+/home/inspire001/zero_ws/src/inspire_hand/src/build/inspire_hand/CMakeFiles/rebuild_cache.dir
+/home/inspire001/zero_ws/src/inspire_hand/src/build/inspire_hand/CMakeFiles/list_install_components.dir
+/home/inspire001/zero_ws/src/inspire_hand/src/build/inspire_hand/CMakeFiles/install.dir
+/home/inspire001/zero_ws/src/inspire_hand/src/build/inspire_hand/CMakeFiles/install/local.dir
+/home/inspire001/zero_ws/src/inspire_hand/src/build/inspire_hand/CMakeFiles/install/strip.dir

@@ -1,0 +1,17 @@
+/home/inspire001/zero_ws/src/inspire_hand/src/install/inspire_hand/lib/inspire_hand/Poor_node
+/home/inspire001/zero_ws/src/inspire_hand/src/install/inspire_hand/lib/inspire_hand/Hand_control_node
+/home/inspire001/zero_ws/src/inspire_hand/src/install/inspire_hand/share/ament_index/resource_index/package_run_dependencies/inspire_hand
+/home/inspire001/zero_ws/src/inspire_hand/src/install/inspire_hand/share/ament_index/resource_index/parent_prefix_path/inspire_hand
+/home/inspire001/zero_ws/src/inspire_hand/src/install/inspire_hand/share/inspire_hand/environment/ament_prefix_path.sh
+/home/inspire001/zero_ws/src/inspire_hand/src/install/inspire_hand/share/inspire_hand/environment/ament_prefix_path.dsv
+/home/inspire001/zero_ws/src/inspire_hand/src/install/inspire_hand/share/inspire_hand/environment/path.sh
+/home/inspire001/zero_ws/src/inspire_hand/src/install/inspire_hand/share/inspire_hand/environment/path.dsv
+/home/inspire001/zero_ws/src/inspire_hand/src/install/inspire_hand/share/inspire_hand/local_setup.bash
+/home/inspire001/zero_ws/src/inspire_hand/src/install/inspire_hand/share/inspire_hand/local_setup.sh
+/home/inspire001/zero_ws/src/inspire_hand/src/install/inspire_hand/share/inspire_hand/local_setup.zsh
+/home/inspire001/zero_ws/src/inspire_hand/src/install/inspire_hand/share/inspire_hand/local_setup.dsv
+/home/inspire001/zero_ws/src/inspire_hand/src/install/inspire_hand/share/inspire_hand/package.dsv
+/home/inspire001/zero_ws/src/inspire_hand/src/install/inspire_hand/share/ament_index/resource_index/packages/inspire_hand
+/home/inspire001/zero_ws/src/inspire_hand/src/install/inspire_hand/share/inspire_hand/cmake/inspire_handConfig.cmake
+/home/inspire001/zero_ws/src/inspire_hand/src/install/inspire_hand/share/inspire_hand/cmake/inspire_handConfig-version.cmake
+/home/inspire001/zero_ws/src/inspire_hand/src/install/inspire_hand/share/inspire_hand/package.xml
