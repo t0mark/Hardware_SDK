@@ -1,0 +1,6 @@
+inspire_hand:
+  modbus:
+    ip: "192.168.11.210"
+    port: 6000
+  topic:
+    publish_rate_hz: 10.0
