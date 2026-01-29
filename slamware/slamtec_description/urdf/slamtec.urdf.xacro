@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="slamtec">
+    <link name="slamtec_base_link">
+        <visual>
+            <origin xyz="0 0 0" rpy="-0.035 0 0"/>
+            <geometry>
+		    <mesh filename="package://slamtec_description/meshes/visual/Phoebus300.STL" scale="1 1 1"/>
+            </geometry>
+	    <material name="gray">
+	      <color rgba="0.5 0.5 0.5 1.0"/>
+	    </material>
+        </visual>
+        <collision>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <geometry>
+                <mesh filename="package://slamtec_description/meshes/collision/Phoebus300.STL" scale="1 1 1"/>
+            </geometry>
+        </collision>
+
+    </link>
+
+</robot>

@@ -1,0 +1,99 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://ros.org/wiki/xacro" name="gen3">
+
+  <!-- Arguments for Gen3 arm -->
+  <xacro:arg name="arm" default="gen3" />
+  <xacro:arg name="dof" default="6" />
+  <xacro:arg name="vision" default="true" />
+  <xacro:arg name="robot_ip" default="192.168.1.10" />
+  <xacro:arg name="username" default="admin" />
+  <xacro:arg name="password" default="admin" />
+  <xacro:arg name="port" default="10000" />
+  <xacro:arg name="port_realtime" default="10001" />
+  <xacro:arg name="session_inactivity_timeout_ms" default="60000" />
+  <xacro:arg name="connection_inactivity_timeout_ms" default="2000" />
+  <xacro:arg name="gripper" default="robotiq_2f_85" />
+  <xacro:arg name="gripper_joint_name" default="robotiq_85_left_knuckle_joint" />
+  <xacro:arg name="gripper_max_velocity" default="100.0" />
+  <xacro:arg name="gripper_max_force" default="100.0" />
+  <xacro:arg name="sim_gazebo" default="false" />
+  <xacro:arg name="sim_ignition" default="false" />
+  <xacro:arg name="sim_isaac" default="false" />
+  <xacro:arg name="isaac_joint_commands" default="/isaac_joint_commands" />
+  <xacro:arg name="isaac_joint_states" default="/isaac_joint_states" />
+  <xacro:arg name="prefix" default="" />
+  <xacro:arg name="use_fake_hardware" default="false" />
+  <xacro:arg name="fake_sensor_commands" default="false" />
+  <xacro:arg name="use_internal_bus_gripper_comm" default="false" />
+  <xacro:arg name="use_external_cable" default="false" />
+  <xacro:arg name="initial_positions_file" default="$(find kortex_description)/config/initial_positions.yaml"/>
+
+  <!-- Include Slamtec robot description -->
+  <xacro:include filename="$(find slamtec_description)/urdf/slamtec.urdf.xacro" />
+
+  <!-- Include Kortex robot macro -->
+  <xacro:include filename="$(find kortex_description)/robots/kortex_robot.xacro" />
+  
+  <!-- Convert to property to use substitution in function -->
+  <xacro:property name="initial_positions_file" default="$(arg initial_positions_file)"/>
+
+  <!-- ROAS CUSTOM -->
+  <link name="top_structure">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="package://roas2_bringup/meshes/top_structure_roas.STL"/>
+      </geometry>
+      <material name="white">
+        <color rgba="1.0 1.0 1.0 1.0" />
+      </material>
+    </visual>
+  </link>
+
+  <joint name="top_structure_joint" type="fixed">
+    <parent link="slamtec_base_link"/>
+    <child link="top_structure"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <axis xyz="0 0 1"/>
+  </joint>
+  
+  <link name="microstrain_imu_link"/>
+  <joint name="microstrain_imu_joint" type="fixed">
+    <parent link="top_structure"/>
+    <child link="microstrain_imu_link"/>
+    <origin xyz="0 0 0.269" rpy="0 0 0"/>
+    <axis xyz="0 0 1"/>
+  </joint>
+
+  <!-- Load Kinova Gen3 robot on top of the structure -->
+  <xacro:load_robot
+      parent="top_structure"
+      arm="$(arg arm)"
+      gripper="$(arg gripper)"
+      gripper_joint_name="$(arg gripper_joint_name)"
+      gripper_max_velocity="$(arg gripper_max_velocity)"
+      gripper_max_force="$(arg gripper_max_force)"
+      dof="$(arg dof)"
+      vision="$(arg vision)"
+      robot_ip="$(arg robot_ip)"
+      username="$(arg username)"
+      password="$(arg password)"
+      port="$(arg port)"
+      port_realtime="$(arg port_realtime)"
+      session_inactivity_timeout_ms="$(arg session_inactivity_timeout_ms)"
+      connection_inactivity_timeout_ms="$(arg connection_inactivity_timeout_ms)"
+      use_internal_bus_gripper_comm="$(arg use_internal_bus_gripper_comm)"
+      prefix="$(arg prefix)"
+      use_fake_hardware="$(arg use_fake_hardware)"
+      fake_sensor_commands="$(arg fake_sensor_commands)"
+      sim_gazebo="$(arg sim_gazebo)"
+      sim_ignition="$(arg sim_ignition)"
+      sim_isaac="$(arg sim_isaac)"
+      isaac_joint_commands="$(arg isaac_joint_commands)"
+      isaac_joint_states="$(arg isaac_joint_states)"
+      use_external_cable="$(arg use_external_cable)"
+      initial_positions="${xacro.load_yaml(initial_positions_file)}" >
+      <origin xyz="0.2125 0 0.57" rpy="0 0 0" />  <!-- Position robot on top structure -->
+  </xacro:load_robot>
+
+</robot>

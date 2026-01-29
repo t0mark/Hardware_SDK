@@ -1,0 +1,54 @@
+import os
+from os import environ
+
+from launch import LaunchDescription
+from launch.actions import DeclareLaunchArgument, Shutdown
+from launch.substitutions import LaunchConfiguration, Command, TextSubstitution
+from launch_ros.actions import Node
+from ament_index_python.packages import get_package_share_directory
+from launch.substitutions import PathJoinSubstitution
+
+def generate_launch_description():
+    ld = LaunchDescription()
+
+    tf_prefix = DeclareLaunchArgument("tf_prefix", default_value="")
+    namespace = DeclareLaunchArgument("namespace", default_value="")
+
+    rsp_node = Node(
+        package='robot_state_publisher',
+        executable='robot_state_publisher',
+        name='robot_state_publisher',
+        output='screen',
+        parameters=[{
+            'ignore_timestamp': False,
+            'robot_description':
+                Command([
+                    'xacro ',
+                    PathJoinSubstitution([
+                        get_package_share_directory('slamtec_description'),
+                        'urdf/robot.urdf.xacro',
+                    ]),
+                    ' namespace:=', LaunchConfiguration('namespace'),
+                    ' tf_prefix:=', LaunchConfiguration('tf_prefix'),
+
+                ]),
+        }]
+    )
+
+    jsp_node = Node(
+        package='joint_state_publisher',
+        executable='joint_state_publisher',
+        name='joint_state_publisher',
+        parameters=[{
+            "source_list": ['joint_states'],
+            "rate": 50.0,
+        }],
+        output='screen'
+    )
+
+    ld.add_action(tf_prefix)
+    ld.add_action(namespace)
+    ld.add_action(rsp_node)
+    ld.add_action(jsp_node)
+
+    return ld

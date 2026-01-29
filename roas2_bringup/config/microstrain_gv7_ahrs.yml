@@ -1,0 +1,7 @@
+# Microstrain GV7-AHRS configuration for ROAS
+# This file overrides default params for GV7-AHRS sensor
+
+microstrain_inertial_driver:
+  ros__parameters:
+    # Disable PPS source (GV7-AHRS has no GNSS)
+    filter_pps_source: 0

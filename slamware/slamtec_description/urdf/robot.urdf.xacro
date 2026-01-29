@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://ros.org/wiki/xacro" name="slamtec">
+    <xacro:include filename="$(find slamtec_description)/urdf/slamtec.urdf.xacro"/>
+
+
+    <xacro:arg name="namespace" default=""/>
+    <xacro:arg name="tf_prefix" default=""/>
+
+    <xacro:insert_robot prefix="$(arg tf_prefix)"/>
+    <xacro:insert_gazebo prefix="$(arg tf_prefix)" namespace="$(arg namespace)"/>
+</robot>
