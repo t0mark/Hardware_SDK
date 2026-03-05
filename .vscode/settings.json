@@ -1,0 +1,17 @@
+{
+    "terminal.integrated.profiles.linux": {
+	        "Docker Connect": {
+            "path": "docker",
+            "args": [
+                "exec",
+                "-it",
+                "-w", "/workspace",
+                // "vla", 
+                "unitree",
+                "bash"
+            ],
+            "icon": "server-environment"
+        }
+    },
+    "terminal.integrated.defaultProfile.linux": "Docker Connect"
+}
