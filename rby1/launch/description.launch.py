@@ -13,7 +13,7 @@ from launch_ros.substitutions import FindPackageShare
 def generate_launch_description():
     pkg_share = get_package_share_directory('rby1')
 
-    urdf_file = os.path.join(pkg_share, 'urdf', 'rby1_full.urdf.xacro')
+    urdf_file = os.path.join(pkg_share, 'urdf', 'rby1_full_ros.urdf.xacro')
     rviz_config = os.path.join(pkg_share, 'rviz', 'rby1.rviz')
 
     robot_description = ParameterValue(Command(['xacro ', urdf_file]), value_type=str)

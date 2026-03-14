@@ -36,7 +36,7 @@
           Left:  FT_sensor_L → base_link       (urdf_left_with_force_sensor)
           Right: FT_sensor_R → right_base_link  (urdf_right_with_force_sensor)
        ================================================================ -->
-  <xacro:include filename="$(find rby1)/urdf/inspire_hand.urdf.xacro"/>
+  <xacro:include filename="$(find rby1)/urdf/inspire_hand_ros.urdf.xacro"/>
 
   <!-- ================================================================
        3. ZED Camera on Head
