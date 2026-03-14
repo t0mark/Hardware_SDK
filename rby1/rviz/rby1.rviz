@@ -1,0 +1,684 @@
+Panels:
+  - Class: rviz_common/Displays
+    Help Height: 0
+    Name: Displays
+    Property Tree Widget:
+      Expanded:
+        - /Global Options1
+      Splitter Ratio: 0.5
+    Tree Height: 426
+  - Class: rviz_common/Selection
+    Name: Selection
+  - Class: rviz_common/Tool Properties
+    Expanded:
+      - /2D Goal Pose1
+      - /Publish Point1
+    Name: Tool Properties
+    Splitter Ratio: 0.5
+  - Class: rviz_common/Views
+    Expanded:
+      - /Current View1
+    Name: Views
+    Splitter Ratio: 0.5
+Visualization Manager:
+  Class: ""
+  Displays:
+    - Alpha: 0.5
+      Cell Size: 1
+      Class: rviz_default_plugins/Grid
+      Color: 160; 160; 164
+      Enabled: true
+      Line Style:
+        Line Width: 0.029999999329447746
+        Value: Lines
+      Name: Grid
+      Normal Cell Count: 0
+      Offset:
+        X: 0
+        Y: 0
+        Z: 0
+      Plane: XY
+      Plane Cell Count: 10
+      Reference Frame: <Fixed Frame>
+      Value: true
+    - Alpha: 1
+      Class: rviz_default_plugins/RobotModel
+      Collision Enabled: false
+      Description File: ""
+      Description Source: Topic
+      Description Topic:
+        Depth: 5
+        Durability Policy: Volatile
+        History Policy: Keep Last
+        Reliability Policy: Reliable
+        Value: /robot_description
+      Enabled: true
+      Links:
+        All Links Enabled: true
+        Expand Joint Details: false
+        Expand Link Details: false
+        Expand Tree: false
+        FT_sensor_L:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        FT_sensor_R:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        Link Tree Style: Links in Alphabetic Order
+        base_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        left_arm_camera_bottom_screw_frame:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        left_arm_camera_color_frame:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        left_arm_camera_color_optical_frame:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        left_arm_camera_depth_frame:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        left_arm_camera_depth_optical_frame:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        left_arm_camera_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        left_base_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        left_index_1:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        left_index_2:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        left_index_force_sensor_1:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        left_index_force_sensor_2:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        left_index_force_sensor_3:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        left_little_1:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        left_little_2:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        left_little_force_sensor_1:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        left_little_force_sensor_2:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        left_little_force_sensor_3:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        left_middle_1:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        left_middle_2:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        left_middle_force_sensor_1:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        left_middle_force_sensor_2:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        left_middle_force_sensor_3:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        left_palm_force_sensor:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        left_ring_1:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        left_ring_2:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        left_ring_force_sensor_1:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        left_ring_force_sensor_2:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        left_ring_force_sensor_3:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        left_thumb_1:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        left_thumb_2:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        left_thumb_3:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        left_thumb_4:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        left_thumb_force_sensor_1:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        left_thumb_force_sensor_2:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        left_thumb_force_sensor_3:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        left_thumb_force_sensor_4:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        link_head_0:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        link_head_1:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        link_head_2:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        link_left_arm_0:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        link_left_arm_1:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        link_left_arm_2:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        link_left_arm_3:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        link_left_arm_4:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        link_left_arm_5:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        link_left_arm_6:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        link_right_arm_0:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        link_right_arm_1:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        link_right_arm_2:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        link_right_arm_3:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        link_right_arm_4:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        link_right_arm_5:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        link_right_arm_6:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        link_torso_0:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        link_torso_1:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        link_torso_2:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        link_torso_3:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        link_torso_4:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        link_torso_5:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        right_arm_camera_bottom_screw_frame:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        right_arm_camera_color_frame:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        right_arm_camera_color_optical_frame:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        right_arm_camera_depth_frame:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        right_arm_camera_depth_optical_frame:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        right_arm_camera_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        right_base_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        right_index_1:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        right_index_2:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        right_index_force_sensor_1:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        right_index_force_sensor_2:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        right_index_force_sensor_3:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        right_little_1:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        right_little_2:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        right_little_force_sensor_1:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        right_little_force_sensor_2:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        right_little_force_sensor_3:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        right_middle_1:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        right_middle_2:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        right_middle_force_sensor_1:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        right_middle_force_sensor_2:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        right_middle_force_sensor_3:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        right_palm_force_sensor:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        right_ring_1:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        right_ring_2:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        right_ring_force_sensor_1:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        right_ring_force_sensor_2:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        right_ring_force_sensor_3:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        right_thumb_1:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        right_thumb_2:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        right_thumb_3:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        right_thumb_4:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        right_thumb_force_sensor_1:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        right_thumb_force_sensor_2:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        right_thumb_force_sensor_3:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        right_thumb_force_sensor_4:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        wheel_l:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        wheel_r:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        zed_camera_center:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
+        zed_camera_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        zed_imu_link:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        zed_left_camera_frame:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        zed_left_camera_optical_frame:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        zed_right_camera_frame:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+        zed_right_camera_optical_frame:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+      Mass Properties:
+        Inertia: false
+        Mass: false
+      Name: RobotModel
+      TF Prefix: ""
+      Update Interval: 0
+      Value: true
+      Visual Enabled: true
+    - Class: rviz_default_plugins/TF
+      Enabled: false
+      Frame Timeout: 15
+      Frames:
+        All Enabled: false
+      Marker Scale: 0.5
+      Name: TF
+      Show Arrows: true
+      Show Axes: true
+      Show Names: false
+      Tree:
+        {}
+      Update Interval: 0
+      Value: false
+  Enabled: true
+  Global Options:
+    Background Color: 48; 48; 48
+    Fixed Frame: base_link
+    Frame Rate: 30
+  Name: root
+  Tools:
+    - Class: rviz_default_plugins/Interact
+      Hide Inactive Objects: true
+    - Class: rviz_default_plugins/MoveCamera
+    - Class: rviz_default_plugins/Select
+    - Class: rviz_default_plugins/FocusCamera
+    - Class: rviz_default_plugins/Measure
+      Line color: 128; 128; 0
+    - Class: rviz_default_plugins/SetInitialPose
+      Covariance x: 0.25
+      Covariance y: 0.25
+      Covariance yaw: 0.06853891909122467
+      Topic:
+        Depth: 5
+        Durability Policy: Volatile
+        History Policy: Keep Last
+        Reliability Policy: Reliable
+        Value: /initialpose
+    - Class: rviz_default_plugins/SetGoal
+      Topic:
+        Depth: 5
+        Durability Policy: Volatile
+        History Policy: Keep Last
+        Reliability Policy: Reliable
+        Value: /goal_pose
+    - Class: rviz_default_plugins/PublishPoint
+      Single click: true
+      Topic:
+        Depth: 5
+        Durability Policy: Volatile
+        History Policy: Keep Last
+        Reliability Policy: Reliable
+        Value: /clicked_point
+  Transformation:
+    Current:
+      Class: rviz_default_plugins/TF
+  Value: true
+  Views:
+    Current:
+      Class: rviz_default_plugins/Orbit
+      Distance: 3.7800204753875732
+      Enable Stereo Rendering:
+        Stereo Eye Separation: 0.05999999865889549
+        Stereo Focal Distance: 1
+        Swap Stereo Eyes: false
+        Value: false
+      Focal Point:
+        X: -0.040439654141664505
+        Y: 0.02904317155480385
+        Z: 0.539056658744812
+      Focal Shape Fixed Size: true
+      Focal Shape Size: 0.05000000074505806
+      Invert Z Axis: false
+      Name: Current View
+      Near Clip Distance: 0.009999999776482582
+      Pitch: 0.5953980088233948
+      Target Frame: <Fixed Frame>
+      Value: Orbit (rviz)
+      Yaw: 0.3403983414173126
+    Saved: ~
+Window Geometry:
+  Displays:
+    collapsed: false
+  Height: 1376
+  Hide Left Dock: false
+  Hide Right Dock: false
+  QMainWindow State: 000000ff00000000fd0000000100000000000002e40000050afc0200000004fb000000100044006900730070006c006100790073010000003b000001e5000000c700fffffffb0000001200530065006c0065006300740069006f006e0100000226000000ee0000005c00fffffffb0000001e0054006f006f006c002000500072006f0070006500720074006900650073010000031a000000ed0000005c00fffffffb0000000a00560069006500770073010000040d00000138000000a000ffffff000006d00000050a00000004000000040000000800000008fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
+  Selection:
+    collapsed: false
+  Tool Properties:
+    collapsed: false
+  Views:
+    collapsed: false
+  Width: 2490
+  X: 1510
+  Y: 446
