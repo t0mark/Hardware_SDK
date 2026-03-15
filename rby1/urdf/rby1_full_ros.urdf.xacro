@@ -21,6 +21,9 @@
   <xacro:arg name="zed_model"              default="zed2i"/>
   <xacro:arg name="initial_positions_file" default="initial_positions.yaml"/>
   <xacro:arg name="robot_ip"               default=""/>
+  <!-- end_effector: "inspire" (RH56E2 dexterous hand) or "original" (2-finger fixed gripper) -->
+  <xacro:arg name="end_effector"           default="inspire"/>
+  <xacro:property name="end_effector" value="$(arg end_effector)"/>
 
   <xacro:property name="M_PI" value="3.1415926535897931"/>
 
@@ -32,11 +35,16 @@
   <xacro:include filename="$(find rby1)/urdf/rby1_base.urdf"/>
 
   <!-- ================================================================
-       2. Inspire Hand RH56E2 (Official — both hands)
-          Left:  FT_sensor_L → base_link       (urdf_left_with_force_sensor)
-          Right: FT_sensor_R → right_base_link  (urdf_right_with_force_sensor)
+       2. End-Effector selection
+          inspire  : Inspire Robotics RH56E2 dexterous hands
+          original : 2-finger fixed gripper (ee_right / ee_left)
        ================================================================ -->
-  <xacro:include filename="$(find rby1)/urdf/inspire_hand_ros.urdf.xacro"/>
+  <xacro:if value="${end_effector == 'inspire'}">
+    <xacro:include filename="$(find rby1)/urdf/inspire_hand_ros.urdf.xacro"/>
+  </xacro:if>
+  <xacro:if value="${end_effector == 'original'}">
+    <xacro:include filename="$(find rby1)/urdf/original_ee_ros.urdf.xacro"/>
+  </xacro:if>
 
   <!-- ================================================================
        3. ZED Camera on Head

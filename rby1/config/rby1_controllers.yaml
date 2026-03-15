@@ -88,6 +88,30 @@ rby1_torso_controller:
       - position
     allow_partial_joints_goal: true
 
+rby1_dualarm_controller:
+  ros__parameters:
+    type: joint_trajectory_controller/JointTrajectoryController
+    joints:
+      - right_arm_0
+      - right_arm_1
+      - right_arm_2
+      - right_arm_3
+      - right_arm_4
+      - right_arm_5
+      - right_arm_6
+      - left_arm_0
+      - left_arm_1
+      - left_arm_2
+      - left_arm_3
+      - left_arm_4
+      - left_arm_5
+      - left_arm_6
+    command_interfaces:
+      - position
+    state_interfaces:
+      - position
+    allow_partial_joints_goal: true
+
 rby1_head_controller:
   ros__parameters:
     type: joint_trajectory_controller/JointTrajectoryController

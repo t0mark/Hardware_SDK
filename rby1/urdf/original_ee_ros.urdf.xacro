@@ -1,0 +1,179 @@
+<?xml version="1.0"?>
+<!--
+  RBY1 Original End-Effector (2-finger fixed gripper)
+  =====================================================
+  Attaches to FT_sensor_R (right) and FT_sensor_L (left).
+  Structure:
+    FT_sensor_R → FT_Sensor_END_right (fixed) → ee_right → ee_finger_r1/r2 (fixed)
+    FT_sensor_L → FT_Sensor_END_left  (fixed) → ee_left  → ee_finger_l1/l2 (fixed)
+
+  Meshes: package://rby1/meshes/rby1/EE_BODY.dae
+          package://rby1/meshes/rby1/EE_FINGER.dae
+-->
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="original_ee">
+
+  <!-- ===== Right EE ===== -->
+
+  <link name="ee_right">
+    <inertial>
+      <mass value="0.46704998"/>
+      <origin rpy="0 0 0" xyz="0.00212703 0.00000615 -0.04287176"/>
+      <inertia ixx="0.00032067" ixy="0.00002383" ixz="-0.00000785"
+               iyy="0.00059559" iyz="-0.00000007" izz="0.00052732"/>
+    </inertial>
+    <visual>
+      <geometry>
+        <mesh filename="package://rby1/meshes/rby1/EE_BODY.dae"/>
+      </geometry>
+    </visual>
+    <collision>
+      <origin xyz="0 0 -0.04" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.13 0.06 0.04"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <joint name="FT_Sensor_END_right" type="fixed">
+    <parent link="FT_sensor_R"/>
+    <child link="ee_right"/>
+    <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 -0.0461"/>
+  </joint>
+
+  <link name="ee_finger_r1">
+    <inertial>
+      <mass value="0.03326999"/>
+      <origin rpy="0 0 0" xyz="0.00278346 -0.00000329 -0.02570112"/>
+      <inertia ixx="0.00001231" ixy="0.0" ixz="-0.00000042"
+               iyy="0.00001066" iyz="0.0" izz="0.00000224"/>
+    </inertial>
+    <visual>
+      <geometry>
+        <mesh filename="package://rby1/meshes/rby1/EE_FINGER.dae"/>
+      </geometry>
+    </visual>
+    <collision>
+      <origin xyz="-0.005 0 -0.03" rpy="0 0 0"/>
+      <geometry>
+        <cylinder radius="0.015" length="0.08"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <joint name="gripper_finger_r1" type="fixed">
+    <parent link="ee_right"/>
+    <child link="ee_finger_r1"/>
+    <origin rpy="0.0 0.0 0.0" xyz="0.003 0.0 -0.073"/>
+  </joint>
+
+  <link name="ee_finger_r2">
+    <inertial>
+      <mass value="0.03326999"/>
+      <origin rpy="0 0 0" xyz="0.00278346 -0.00000329 -0.02570112"/>
+      <inertia ixx="0.00001231" ixy="0.0" ixz="-0.00000042"
+               iyy="0.00001066" iyz="0.0" izz="0.00000224"/>
+    </inertial>
+    <visual>
+      <geometry>
+        <mesh filename="package://rby1/meshes/rby1/EE_FINGER.dae"/>
+      </geometry>
+    </visual>
+  </link>
+
+  <joint name="gripper_finger_r2" type="fixed">
+    <parent link="ee_right"/>
+    <child link="ee_finger_r2"/>
+    <origin rpy="0.0 0.0 3.1415926535" xyz="-0.003 0.0 -0.073"/>
+  </joint>
+
+  <!-- Right TCP (tool center point between fingertips) -->
+  <link name="ee_tcp_right"/>
+  <joint name="ee_tcp_right_joint" type="fixed">
+    <parent link="ee_right"/>
+    <child link="ee_tcp_right"/>
+    <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 -0.13"/>
+  </joint>
+
+  <!-- ===== Left EE ===== -->
+
+  <link name="ee_left">
+    <inertial>
+      <mass value="0.46704998"/>
+      <origin rpy="0 0 0" xyz="0.00212703 0.00000615 -0.04287176"/>
+      <inertia ixx="0.00032067" ixy="0.00002383" ixz="-0.00000785"
+               iyy="0.00059559" iyz="-0.00000007" izz="0.00052732"/>
+    </inertial>
+    <visual>
+      <geometry>
+        <mesh filename="package://rby1/meshes/rby1/EE_BODY.dae"/>
+      </geometry>
+    </visual>
+    <collision>
+      <origin xyz="0 0 -0.04" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.13 0.06 0.04"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <joint name="FT_Sensor_END_left" type="fixed">
+    <parent link="FT_sensor_L"/>
+    <child link="ee_left"/>
+    <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 -0.0461"/>
+  </joint>
+
+  <link name="ee_finger_l1">
+    <inertial>
+      <mass value="0.03326999"/>
+      <origin rpy="0 0 0" xyz="0.00278346 -0.00000329 -0.02570112"/>
+      <inertia ixx="0.00001231" ixy="0.0" ixz="-0.00000042"
+               iyy="0.00001066" iyz="0.0" izz="0.00000224"/>
+    </inertial>
+    <visual>
+      <geometry>
+        <mesh filename="package://rby1/meshes/rby1/EE_FINGER.dae"/>
+      </geometry>
+    </visual>
+    <collision>
+      <origin xyz="-0.005 0 -0.03" rpy="0 0 0"/>
+      <geometry>
+        <cylinder radius="0.015" length="0.08"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <joint name="gripper_finger_l1" type="fixed">
+    <parent link="ee_left"/>
+    <child link="ee_finger_l1"/>
+    <origin rpy="0.0 0.0 0.0" xyz="0.003 0.0 -0.073"/>
+  </joint>
+
+  <link name="ee_finger_l2">
+    <inertial>
+      <mass value="0.03326999"/>
+      <origin rpy="0 0 0" xyz="0.00278346 -0.00000329 -0.02570112"/>
+      <inertia ixx="0.00001231" ixy="0.0" ixz="-0.00000042"
+               iyy="0.00001066" iyz="0.0" izz="0.00000224"/>
+    </inertial>
+    <visual>
+      <geometry>
+        <mesh filename="package://rby1/meshes/rby1/EE_FINGER.dae"/>
+      </geometry>
+    </visual>
+  </link>
+
+  <joint name="gripper_finger_l2" type="fixed">
+    <parent link="ee_left"/>
+    <child link="ee_finger_l2"/>
+    <origin rpy="0.0 0.0 3.1415926535" xyz="-0.003 0.0 -0.073"/>
+  </joint>
+
+  <!-- Left TCP (tool center point between fingertips) -->
+  <link name="ee_tcp_left"/>
+  <joint name="ee_tcp_left_joint" type="fixed">
+    <parent link="ee_left"/>
+    <child link="ee_tcp_left"/>
+    <origin rpy="0.0 0.0 0.0" xyz="0.0 0.0 -0.13"/>
+  </joint>
+
+</robot>

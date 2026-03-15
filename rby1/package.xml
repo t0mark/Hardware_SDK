@@ -44,6 +44,15 @@
 
   <exec_depend>python3-rclpy</exec_depend>
 
+  <!-- Runtime: MoveIt2 -->
+  <exec_depend>moveit_ros_move_group</exec_depend>
+  <exec_depend>moveit_kinematics</exec_depend>
+  <exec_depend>moveit_planners</exec_depend>
+  <exec_depend>moveit_simple_controller_manager</exec_depend>
+  <exec_depend>moveit_configs_utils</exec_depend>
+  <exec_depend>moveit_ros_visualization</exec_depend>
+  <exec_depend>cached_ik_kinematics_plugin</exec_depend>
+
   <export>
     <build_type>ament_cmake</build_type>
   </export>
