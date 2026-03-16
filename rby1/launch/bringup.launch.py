@@ -41,7 +41,7 @@ def generate_launch_description():
 
     robot_ip_arg = DeclareLaunchArgument(
         'robot_ip',
-        default_value='192.168.30.1:50051',
+        default_value='192.168.12.1:50051',
         description='Robot gRPC address (host:port)',
     )
     end_effector_arg = DeclareLaunchArgument(
@@ -113,7 +113,8 @@ def generate_launch_description():
         jsb_spawner = Node(
             package='controller_manager',
             executable='spawner',
-            arguments=['joint_state_broadcaster', '--controller-manager', '/controller_manager'],
+            arguments=['joint_state_broadcaster', '--controller-manager', '/controller_manager',
+                       '--param-file', controllers_yaml],
             output='screen',
         )
 
@@ -127,6 +128,7 @@ def generate_launch_description():
                     arguments=[
                         'rby1_wholebody_controller',
                         '--controller-manager', '/controller_manager',
+                        '--param-file', controllers_yaml,
                     ],
                     output='screen',
                 )

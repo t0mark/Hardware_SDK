@@ -93,11 +93,11 @@ hardware_interface::CallbackReturn RBY1HardwareInterface::on_configure(
 
   RCLCPP_INFO(node_->get_logger(), "Connecting to robot at %s ...", robot_ip_.c_str());
 
-  if (!sendPowerOn(".*")) {
+  if (!checkIsPowerOn() && !sendPowerOn(".*")) {
     RCLCPP_ERROR(node_->get_logger(), "PowerOn failed");
     return hardware_interface::CallbackReturn::ERROR;
   }
-  if (!sendServoOn(".*")) {
+  if (!checkIsServoOn() && !sendServoOn(".*")) {
     RCLCPP_ERROR(node_->get_logger(), "ServoOn failed");
     return hardware_interface::CallbackReturn::ERROR;
   }
@@ -362,6 +362,34 @@ void RBY1HardwareInterface::sendWriteCommand()
 // ---------------------------------------------------------------------------
 // gRPC helpers
 // ---------------------------------------------------------------------------
+bool RBY1HardwareInterface::checkIsPowerOn()
+{
+  rb::api::GetRobotStateRequest req;
+  grpc::ClientContext ctx;
+  rb::api::GetRobotStateResponse resp;
+  auto s = grpc_->state->GetRobotState(&ctx, req, &resp);
+  if (!s.ok()) return false;
+  for (const auto & ps : resp.robot_state().power_states()) {
+    if (ps.state() == rb::api::PowerState::STATE_POWER_ON) return true;
+  }
+  return false;
+}
+
+bool RBY1HardwareInterface::checkIsServoOn()
+{
+  rb::api::GetRobotStateRequest req;
+  grpc::ClientContext ctx;
+  rb::api::GetRobotStateResponse resp;
+  auto s = grpc_->state->GetRobotState(&ctx, req, &resp);
+  if (!s.ok()) return false;
+  const auto & js = resp.robot_state().joint_states();
+  if (js.empty()) return false;
+  for (const auto & j : js) {
+    if (!j.is_ready()) return false;
+  }
+  return true;
+}
+
 bool RBY1HardwareInterface::sendPowerOn(const std::string & name)
 {
   rb::api::PowerCommandRequest req;

@@ -72,6 +72,8 @@ private:
   bool cmd_stream_initialized_{false};
 
   // Helpers
+  bool checkIsPowerOn();
+  bool checkIsServoOn();
   bool sendPowerOn(const std::string & name);
   bool sendServoOn(const std::string & name);
   bool sendControlManagerCommand(int command);

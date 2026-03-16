@@ -1,6 +1,20 @@
 controller_manager:
   ros__parameters:
     update_rate: 100  # Hz
+    joint_state_broadcaster:
+      type: joint_state_broadcaster/JointStateBroadcaster
+    rby1_wholebody_controller:
+      type: joint_trajectory_controller/JointTrajectoryController
+    rby1_right_arm_controller:
+      type: joint_trajectory_controller/JointTrajectoryController
+    rby1_left_arm_controller:
+      type: joint_trajectory_controller/JointTrajectoryController
+    rby1_torso_controller:
+      type: joint_trajectory_controller/JointTrajectoryController
+    rby1_dualarm_controller:
+      type: joint_trajectory_controller/JointTrajectoryController
+    rby1_head_controller:
+      type: joint_trajectory_controller/JointTrajectoryController
 
 joint_state_broadcaster:
   ros__parameters:
