@@ -63,4 +63,16 @@ def generate_launch_description():
                 'rate': LaunchConfiguration('rate'),
             }],
         ),
+
+        # ── mobility_node ────────────────────────────────────────────────────────
+        Node(
+            package='rby1',
+            executable='mobility_node',
+            name='rby1_mobility',
+            output='screen',
+            parameters=[{
+                'robot_address': LaunchConfiguration('robot_address'),
+                'model': LaunchConfiguration('model'),
+            }],
+        ),
     ])

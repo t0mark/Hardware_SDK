@@ -41,3 +41,6 @@ RUN cmake .. -G "Unix Makefiles" \
     -DBUILD_EXAMPLES=ON
 RUN cmake --build .
 RUN make install
+
+RUN apt install -y \
+    ros-humble-rqt*
