@@ -3,17 +3,14 @@
 <package format="3">
   <name>rby1</name>
   <version>0.0.1</version>
-  <description>RBY1 humanoid robot description, URDF, and launch files</description>
+  <description>RBY1 humanoid robot description, URDF, launch files, and hardware node</description>
   <maintainer email="todo@todo.com">TODO</maintainer>
   <license>Apache-2.0</license>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
-  <buildtool_depend>ament_cmake_python</buildtool_depend>
 
-  <exec_depend>rclpy</exec_depend>
-  <exec_depend>sensor_msgs</exec_depend>
-  <exec_depend>python3-grpcio</exec_depend>
-  <exec_depend>python3-protobuf</exec_depend>
+  <depend>rclcpp</depend>
+  <depend>sensor_msgs</depend>
 
   <exec_depend>robot_state_publisher</exec_depend>
   <exec_depend>joint_state_publisher_gui</exec_depend>
@@ -21,6 +18,8 @@
   <exec_depend>xacro</exec_depend>
   <exec_depend>joy</exec_depend>
   <exec_depend>teleop_twist_joy</exec_depend>
+
+  <!-- rby1-sdk는 컨테이너에 별도 설치 -->
 
   <export>
     <build_type>ament_cmake</build_type>
