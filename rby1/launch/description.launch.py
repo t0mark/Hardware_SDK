@@ -16,7 +16,10 @@ def generate_launch_description():
     urdf_file = os.path.join(pkg_share, 'urdf', 'rby1_full_ros.urdf.xacro')
     rviz_config = os.path.join(pkg_share, 'rviz', 'rby1.rviz')
 
-    robot_description = ParameterValue(Command(['xacro ', urdf_file]), value_type=str)
+    robot_description = ParameterValue(
+        Command(['xacro ', urdf_file, ' end_effector:=', LaunchConfiguration('end_effector')]),
+        value_type=str,
+    )
 
     return LaunchDescription([
         DeclareLaunchArgument(
@@ -31,12 +34,20 @@ def generate_launch_description():
             description='Launch joint_state_publisher_gui if true',
         ),
 
+        DeclareLaunchArgument(
+            'end_effector',
+            default_value='original',
+            choices=['inspire', 'original'],
+            description='End-effector type: inspire (RH56E2 dexterous hand) or original (2-finger gripper)',
+        ),
+
         Node(
             package='robot_state_publisher',
             executable='robot_state_publisher',
             name='robot_state_publisher',
             output='screen',
             parameters=[{'robot_description': robot_description}],
+            arguments=['--ros-args', '--log-level', 'warn', '--disable-stdout-logs'] # 경고 이상의 로그만 허용하고 콘솔 출력 차단
         ),
 
         Node(

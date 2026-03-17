@@ -21,6 +21,7 @@ def generate_launch_description():
             launch_arguments={
                 'publish_joints': 'false',
                 'rviz': 'true',
+                'end_effector': 'original'
             }.items(),
         ),
 
