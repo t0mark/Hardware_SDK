@@ -5,9 +5,8 @@ Panels:
     Property Tree Widget:
       Expanded:
         - /Global Options1
-        - /MotionPlanning1
       Splitter Ratio: 0.5
-    Tree Height: 426
+    Tree Height: 487
   - Class: rviz_common/Selection
     Name: Selection
   - Class: rviz_common/Tool Properties
@@ -587,41 +586,6 @@ Visualization Manager:
       Update Interval: 0
       Value: true
       Visual Enabled: true
-    - Class: moveit_rviz_plugin/MotionPlanning
-      Enabled: true
-      Move Group Namespace: ""
-      Name: MotionPlanning
-      Planned Path:
-        Loop Animation: true
-        Show Robot Collision: false
-        Show Robot Visual: true
-        Show Trail: false
-        State Display Time: 0.05 s
-        Trajectory Topic: /display_planned_path
-      Planning Request:
-        Goal State Alpha: 1
-        Interactive Marker Size: 0.2
-        Planning Group: rby1_right_arm
-        Show Goal State: true
-        Show IK interactive markers: true
-        Show Start State: true
-        Start State Alpha: 1
-      Planning Scene Topic: /monitored_planning_scene
-      Robot Description: robot_description
-      Scene Geometry:
-        Scene Alpha: 1
-        Scene Color:
-          B: 0.6000000238418579
-          G: 0.5
-          R: 0.5
-        Show Scene Geometry: true
-        Voxel Coloring: Z-Axis
-        Voxel Rendering: Occupied Voxels
-      Scene Robot:
-        Robot Alpha: 0.5
-        Show Robot Collision: false
-        Show Robot Visual: true
-      Value: true
     - Class: rviz_default_plugins/TF
       Enabled: false
       Frame Timeout: 15
@@ -639,7 +603,7 @@ Visualization Manager:
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
-    Fixed Frame: world
+    Fixed Frame: base_link
     Frame Rate: 30
   Name: root
   Tools:
@@ -705,10 +669,10 @@ Visualization Manager:
 Window Geometry:
   Displays:
     collapsed: false
-  Height: 1376
+  Height: 1536
   Hide Left Dock: false
   Hide Right Dock: false
-  QMainWindow State: 000000ff00000000fd0000000100000000000002e40000050afc0200000004fb000000100044006900730070006c006100790073010000003b000001e5000000c700fffffffb0000001200530065006c0065006300740069006f006e0100000226000000ee0000005c00fffffffb0000001e0054006f006f006c002000500072006f0070006500720074006900650073010000031a000000ed0000005c00fffffffb0000000a00560069006500770073010000040d00000138000000a000ffffff000006d00000050a00000004000000040000000800000008fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
+  QMainWindow State: 000000ff00000000fd0000000100000000000002e4000005aafc0200000004fb000000100044006900730070006c006100790073010000003b00000222000000c700fffffffb0000001200530065006c0065006300740069006f006e01000002630000010c0000005c00fffffffb0000001e0054006f006f006c002000500072006f007000650072007400690065007301000003750000010b0000005c00fffffffb0000000a0056006900650077007301000004860000015f000000a000ffffff000006d0000005aa00000004000000040000000800000008fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
   Selection:
     collapsed: false
   Tool Properties:
@@ -716,5 +680,5 @@ Window Geometry:
   Views:
     collapsed: false
   Width: 2490
-  X: 1510
-  Y: 446
+  X: 70
+  Y: 27

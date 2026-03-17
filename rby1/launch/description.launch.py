@@ -25,6 +25,12 @@ def generate_launch_description():
             description='Launch RViz if true',
         ),
 
+        DeclareLaunchArgument(
+            'publish_joints',
+            default_value='true',
+            description='Launch joint_state_publisher_gui if true',
+        ),
+
         Node(
             package='robot_state_publisher',
             executable='robot_state_publisher',
@@ -38,6 +44,7 @@ def generate_launch_description():
             executable='joint_state_publisher_gui',
             name='joint_state_publisher_gui',
             output='screen',
+            condition=IfCondition(LaunchConfiguration('publish_joints')),
         ),
 
         Node(
