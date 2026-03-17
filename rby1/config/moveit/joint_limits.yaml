@@ -1,0 +1,120 @@
+# joint_limits.yaml — MoveIt 관절 속도/가속도 제한
+# rby1-ros-moveit 참조값 그대로 사용
+
+default_velocity_scaling_factor: 0.1
+default_acceleration_scaling_factor: 0.1
+
+joint_limits:
+  torso_0:
+    has_velocity_limits: true
+    max_velocity: 2.0943951
+    has_acceleration_limits: false
+    max_acceleration: 0
+  torso_1:
+    has_velocity_limits: true
+    max_velocity: 2.0943951
+    has_acceleration_limits: false
+    max_acceleration: 0
+  torso_2:
+    has_velocity_limits: true
+    max_velocity: 2.0943951
+    has_acceleration_limits: false
+    max_acceleration: 0
+  torso_3:
+    has_velocity_limits: true
+    max_velocity: 3.1415927
+    has_acceleration_limits: false
+    max_acceleration: 0
+  torso_4:
+    has_velocity_limits: true
+    max_velocity: 3.1415927
+    has_acceleration_limits: false
+    max_acceleration: 0
+  torso_5:
+    has_velocity_limits: true
+    max_velocity: 3.1415927
+    has_acceleration_limits: false
+    max_acceleration: 0
+
+  right_arm_0:
+    has_velocity_limits: true
+    max_velocity: 3.1415927
+    has_acceleration_limits: false
+    max_acceleration: 0
+  right_arm_1:
+    has_velocity_limits: true
+    max_velocity: 3.1415927
+    has_acceleration_limits: false
+    max_acceleration: 0
+  right_arm_2:
+    has_velocity_limits: true
+    max_velocity: 3.1415927
+    has_acceleration_limits: false
+    max_acceleration: 0
+  right_arm_3:
+    has_velocity_limits: true
+    max_velocity: 3.1415927
+    has_acceleration_limits: false
+    max_acceleration: 0
+  right_arm_4:
+    has_velocity_limits: true
+    max_velocity: 6.2831853
+    has_acceleration_limits: false
+    max_acceleration: 0
+  right_arm_5:
+    has_velocity_limits: true
+    max_velocity: 6.2831853
+    has_acceleration_limits: false
+    max_acceleration: 0
+  right_arm_6:
+    has_velocity_limits: true
+    max_velocity: 2.0943951
+    has_acceleration_limits: false
+    max_acceleration: 0
+
+  left_arm_0:
+    has_velocity_limits: true
+    max_velocity: 3.1415927
+    has_acceleration_limits: false
+    max_acceleration: 0
+  left_arm_1:
+    has_velocity_limits: true
+    max_velocity: 3.1415927
+    has_acceleration_limits: false
+    max_acceleration: 0
+  left_arm_2:
+    has_velocity_limits: true
+    max_velocity: 3.1415927
+    has_acceleration_limits: false
+    max_acceleration: 0
+  left_arm_3:
+    has_velocity_limits: true
+    max_velocity: 3.1415927
+    has_acceleration_limits: false
+    max_acceleration: 0
+  left_arm_4:
+    has_velocity_limits: true
+    max_velocity: 6.2831853
+    has_acceleration_limits: false
+    max_acceleration: 0
+  left_arm_5:
+    has_velocity_limits: true
+    max_velocity: 6.2831853
+    has_acceleration_limits: false
+    max_acceleration: 0
+  left_arm_6:
+    has_velocity_limits: true
+    max_velocity: 2.0943951
+    has_acceleration_limits: false
+    max_acceleration: 0
+
+  head_0:
+    has_velocity_limits: true
+    max_velocity: 3.14
+    has_acceleration_limits: false
+    max_acceleration: 0
+  head_1:
+    has_velocity_limits: true
+    max_velocity: 3.14
+    has_acceleration_limits: false
+    max_acceleration: 0

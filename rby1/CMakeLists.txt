@@ -3,8 +3,10 @@ project(rby1)
 
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
+find_package(rclcpp_action REQUIRED)
 find_package(sensor_msgs REQUIRED)
 find_package(geometry_msgs REQUIRED)
+find_package(control_msgs REQUIRED)
 find_package(rby1-sdk REQUIRED)
 
 # ── hardware_node (C++) ───────────────────────────────────────────────────────
@@ -17,14 +19,20 @@ add_executable(mobility_node src/mobility_node.cpp)
 ament_target_dependencies(mobility_node rclcpp geometry_msgs)
 target_link_libraries(mobility_node rby1-sdk::rby1-sdk)
 
+# ── wholebody_control_node (C++) ──────────────────────────────────────────────
+add_executable(wholebody_control_node src/wholebody_control_node.cpp)
+ament_target_dependencies(wholebody_control_node
+  rclcpp rclcpp_action sensor_msgs control_msgs)
+target_link_libraries(wholebody_control_node rby1-sdk::rby1-sdk)
+
 install(
-  TARGETS hardware_node mobility_node
+  TARGETS hardware_node mobility_node wholebody_control_node
   DESTINATION lib/${PROJECT_NAME}
 )
 
 # ── 공유 디렉터리 ─────────────────────────────────────────────────────────────
 install(
-  DIRECTORY launch urdf meshes rviz
+  DIRECTORY launch urdf meshes rviz config
   DESTINATION share/${PROJECT_NAME}
 )
 

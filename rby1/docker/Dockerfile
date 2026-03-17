@@ -44,3 +44,9 @@ RUN make install
 
 RUN apt install -y \
     ros-humble-rqt*
+
+# MoveIt2 + 관련 패키지 (kdl_kinematics_plugin은 moveit에 포함)
+RUN apt-get update && apt-get install -y \
+    ros-humble-moveit \
+    ros-humble-control-msgs \
+    && rm -rf /var/lib/apt/lists/*
