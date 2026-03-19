@@ -795,4 +795,27 @@
         <limit effort="1000" velocity="3.14" lower="-0.35" upper="1.57"/>
     </joint>
 
+    <!-- ================================================================
+         LiDAR TF Frames (Lakibeam - fixed to base_link)
+         Visual geometry is part of the robot body mesh.
+         Positions derived from data_fusion.launch.py reference values.
+         NOTE: verify xyz/rpy with physical measurements after mounting.
+         ================================================================ -->
+
+    <link name="lidar_left"/>
+    <joint name="lidar_left_joint" type="fixed">
+        <parent link="base_link"/>
+        <child link="lidar_left"/>
+        <!-- left:  228 mm fwd, 176.5 mm left, 222.8 mm up / yaw +55 deg -->
+        <origin xyz="0.228 0.1765 0.22282" rpy="0 0 0.9599"/>
+    </joint>
+
+    <link name="lidar_right"/>
+    <joint name="lidar_right_joint" type="fixed">
+        <parent link="base_link"/>
+        <child link="lidar_right"/>
+        <!-- right: 228 mm fwd, 176.5 mm right, 222.8 mm up / yaw -55 deg -->
+        <origin xyz="0.228 -0.1765 0.22282" rpy="0 0 -0.9599"/>
+    </joint>
+
 </robot>

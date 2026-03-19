@@ -25,6 +25,9 @@
   <exec_depend>moveit_simple_controller_manager</exec_depend>
   <exec_depend>kdl_kinematics_plugin</exec_depend>
 
+  <!-- libcurl: LiDAR HTTP 설정 API -->
+  <build_depend>libcurl4-openssl-dev</build_depend>
+
   <!-- rby1-sdk는 컨테이너에 별도 설치 -->
 
   <export>

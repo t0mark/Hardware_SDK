@@ -14,7 +14,7 @@ def generate_launch_description():
     pkg_share = get_package_share_directory('rby1')
 
     urdf_file = os.path.join(pkg_share, 'urdf', 'rby1_full_ros.urdf.xacro')
-    rviz_config = os.path.join(pkg_share, 'rviz', 'rby1.rviz')
+    rviz_config = os.path.join(pkg_share, 'rviz', 'description.rviz')
 
     robot_description = ParameterValue(
         Command(['xacro ', urdf_file, ' end_effector:=', LaunchConfiguration('end_effector')]),

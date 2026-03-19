@@ -38,7 +38,7 @@ def generate_launch_description():
         # ── 런치 인자 ─────────────────────────────────────────────────────────
         DeclareLaunchArgument(
             'robot_address',
-            default_value='192.168.12.1:50051',
+            default_value='192.168.30.1:50051',
             description='Robot gRPC address (host:port)',
         ),
         DeclareLaunchArgument(
@@ -62,6 +62,11 @@ def generate_launch_description():
             'rviz',
             default_value='true',
             description='Launch RViz',
+        ),
+        DeclareLaunchArgument(
+            'use_lidar',
+            default_value='false',
+            description='Launch dual Lakibeam LiDAR nodes (lidar.launch.py)',
         ),
 
         # ── description (robot_state_publisher만 — rviz는 아래에서 직접 실행) ──
@@ -116,6 +121,18 @@ def generate_launch_description():
             parameters=[{
                 'robot_address': LaunchConfiguration('robot_address'),
             }],
+        ),
+
+        # ── LiDAR 노드 (조건부) ───────────────────────────────────────────────
+        GroupAction(
+            condition=IfCondition(LaunchConfiguration('use_lidar')),
+            actions=[
+                IncludeLaunchDescription(
+                    PythonLaunchDescriptionSource([
+                        PathJoinSubstitution([pkg_share, 'launch', 'lidar.launch.py'])
+                    ]),
+                ),
+            ],
         ),
 
         # ── world → base_link static TF (MoveIt 필수) ────────────────────────
@@ -190,7 +207,7 @@ def generate_launch_description():
             executable='rviz2',
             name='rviz2',
             output='screen',
-            arguments=['-d', os.path.join(pkg_share_str, 'rviz', 'rby1.rviz')],
+            arguments=['-d', os.path.join(pkg_share_str, 'rviz', 'bringup.rviz')],
             condition=IfCondition(LaunchConfiguration('rviz')),
             parameters=[
                 {'robot_description_semantic': srdf_content},

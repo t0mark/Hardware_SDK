@@ -8,6 +8,7 @@ find_package(sensor_msgs REQUIRED)
 find_package(geometry_msgs REQUIRED)
 find_package(control_msgs REQUIRED)
 find_package(rby1-sdk REQUIRED)
+find_package(CURL REQUIRED)
 
 # ── hardware_node (C++) ───────────────────────────────────────────────────────
 add_executable(hardware_node src/hardware_node.cpp)
@@ -25,8 +26,14 @@ ament_target_dependencies(wholebody_control_node
   rclcpp rclcpp_action sensor_msgs control_msgs)
 target_link_libraries(wholebody_control_node rby1-sdk::rby1-sdk)
 
+# ── lidar_node (C++) ──────────────────────────────────────────────────────────
+add_executable(lidar_node src/lidar_node.cpp src/lidar_remote.cpp)
+target_include_directories(lidar_node PRIVATE include)
+ament_target_dependencies(lidar_node rclcpp sensor_msgs)
+target_link_libraries(lidar_node curl)
+
 install(
-  TARGETS hardware_node mobility_node wholebody_control_node
+  TARGETS hardware_node mobility_node wholebody_control_node lidar_node
   DESTINATION lib/${PROJECT_NAME}
 )
 

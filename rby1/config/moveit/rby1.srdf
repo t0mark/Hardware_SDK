@@ -223,4 +223,11 @@
   <disable_collisions link1="zed_camera_center" link2="link_left_arm_1"  reason="Never"/>
   <disable_collisions link1="zed_camera_center" link2="link_left_arm_2"  reason="Never"/>
 
+  <!-- LiDAR mounts (fixed to base_link) -->
+  <disable_collisions link1="lidar_left"  link2="base_link"     reason="Adjacent"/>
+  <disable_collisions link1="lidar_right" link2="base_link"     reason="Adjacent"/>
+  <disable_collisions link1="lidar_left"  link2="link_torso_0"  reason="Never"/>
+  <disable_collisions link1="lidar_right" link2="link_torso_0"  reason="Never"/>
+  <disable_collisions link1="lidar_left"  link2="lidar_right"   reason="Never"/>
+
 </robot>
