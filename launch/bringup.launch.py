@@ -135,13 +135,6 @@ def generate_launch_description():
             ],
         ),
 
-        # ── teleop ────────────────────────────────────────────────────────────
-        IncludeLaunchDescription(
-            PythonLaunchDescriptionSource([
-                PathJoinSubstitution([pkg_share, 'launch', 'teleop.launch.py'])
-            ]),
-        ),
-
         # ── world → base_link static TF (MoveIt 필수) ────────────────────────
         Node(
             package='tf2_ros',
