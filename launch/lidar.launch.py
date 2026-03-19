@@ -23,7 +23,7 @@ def generate_launch_description():
             parameters=[{
                 'sensorip':         '192.168.30.10',
                 'hostip':           '0.0.0.0',
-                'port':             '2368',
+                'port':             '2367',
                 'frame_id':         'lidar_left',
                 'output_topic':     'scan_left',
                 'inverted':         False,
@@ -47,7 +47,7 @@ def generate_launch_description():
             parameters=[{
                 'sensorip':         '192.168.30.11',
                 'hostip':           '0.0.0.0',
-                'port':             '2369',
+                'port':             '2368',
                 'frame_id':         'lidar_right',
                 'output_topic':     'scan_right',
                 'inverted':         False,
