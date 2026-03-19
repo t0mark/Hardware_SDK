@@ -52,11 +52,16 @@ sudo apt install -y \
   libcurl4-openssl-dev
 ```
 
-## 빌드
+## 설치 방법
 
 ```bash
-cd ~/ros_ws
-colcon build --symlink-install
+mkdir -p ros_ws/src && cd ros_ws/src
+git clone https://github.com/t0mark/hardware-sdk -b plat/custom-rby1 rby1
+cd ..
+
+source /opt/ros/humble/setup.bash
+
+colcon build
 source install/setup.bash
 ```
 
