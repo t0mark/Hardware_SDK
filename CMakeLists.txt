@@ -38,8 +38,19 @@ target_link_libraries(lidar_node curl)
 add_executable(merge_laserscan_node src/merge_laserscan_node.cpp)
 ament_target_dependencies(merge_laserscan_node rclcpp sensor_msgs geometry_msgs tf2_ros)
 
+# ── zero_pose_node (C++) ──────────────────────────────────────────────────────
+add_executable(zero_pose_node src/zero_pose_node.cpp)
+ament_target_dependencies(zero_pose_node rclcpp)
+target_link_libraries(zero_pose_node rby1-sdk::rby1-sdk)
+
+# ── turn_off_node (C++) ───────────────────────────────────────────────────────
+add_executable(turn_off_node src/turn_off_node.cpp)
+ament_target_dependencies(turn_off_node rclcpp)
+target_link_libraries(turn_off_node rby1-sdk::rby1-sdk)
+
 install(
   TARGETS hardware_node mobility_node wholebody_control_node lidar_node merge_laserscan_node
+          zero_pose_node turn_off_node
   DESTINATION lib/${PROJECT_NAME}
 )
 
