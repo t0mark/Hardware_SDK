@@ -7,25 +7,11 @@ from launch_ros.actions import Node
 def generate_launch_description():
     return LaunchDescription([
         # ── 런치 인자 ─────────────────────────────────────────────────────
+        # configure_sensor: bool로 C++ 노드에 직접 전달 (LaunchConfiguration OK)
         DeclareLaunchArgument(
             'configure_sensor',
             default_value='true',
             description='Send HTTP config to sensor at startup (scanfreq, laser_enable, scan_range)',
-        ),
-        DeclareLaunchArgument(
-            'scanfreq',
-            default_value='30',
-            description='Scan frequency in Hz (10 / 20 / 25 / 30)',
-        ),
-        DeclareLaunchArgument(
-            'scan_range_start',
-            default_value='45',
-            description='Scan range start angle in degrees (45–315)',
-        ),
-        DeclareLaunchArgument(
-            'scan_range_stop',
-            default_value='315',
-            description='Scan range stop angle in degrees (45–315, must be > start)',
         ),
 
         # ── 좌측 LiDAR (192.168.30.10) ───────────────────────────────────
@@ -42,11 +28,13 @@ def generate_launch_description():
                 'output_topic':     'scan_left',
                 'inverted':         False,
                 'angle_offset':     0,
+                # bool: LaunchConfiguration('true'/'false') → YAML true/false → C++ bool OK
                 'configure_sensor': LaunchConfiguration('configure_sensor'),
-                'scanfreq':         LaunchConfiguration('scanfreq'),
-                'laser_enable':     'true',
-                'scan_range_start': LaunchConfiguration('scan_range_start'),
-                'scan_range_stop':  LaunchConfiguration('scan_range_stop'),
+                # int64_t: Python int 리터럴로 전달 (LaunchConfiguration은 string → type mismatch)
+                'scanfreq':         30,
+                'laser_enable':     True,
+                'scan_range_start': 45,
+                'scan_range_stop':  315,
             }],
         ),
 
@@ -65,10 +53,10 @@ def generate_launch_description():
                 'inverted':         False,
                 'angle_offset':     0,
                 'configure_sensor': LaunchConfiguration('configure_sensor'),
-                'scanfreq':         LaunchConfiguration('scanfreq'),
-                'laser_enable':     'true',
-                'scan_range_start': LaunchConfiguration('scan_range_start'),
-                'scan_range_stop':  LaunchConfiguration('scan_range_stop'),
+                'scanfreq':         30,
+                'laser_enable':     True,
+                'scan_range_start': 45,
+                'scan_range_stop':  315,
             }],
         ),
     ])

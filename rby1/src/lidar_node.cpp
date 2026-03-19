@@ -32,11 +32,11 @@ public:
         declare_parameter<std::string>("output_topic",     "scan_left");
         declare_parameter<bool>       ("inverted",         false);
         declare_parameter<int>        ("angle_offset",     0);
-        declare_parameter<bool>       ("configure_sensor", true);
-        declare_parameter<std::string>("scanfreq",         "30");
-        declare_parameter<std::string>("laser_enable",     "true");
-        declare_parameter<std::string>("scan_range_start", "45");
-        declare_parameter<std::string>("scan_range_stop",  "315");
+        declare_parameter<bool>  ("configure_sensor", true);
+        declare_parameter<int64_t>("scanfreq",         30);
+        declare_parameter<bool>  ("laser_enable",      true);
+        declare_parameter<int64_t>("scan_range_start", 45);
+        declare_parameter<int64_t>("scan_range_stop",  315);
 
         get_parameter("sensorip",         sensorip_);
         get_parameter("hostip",           hostip_);
@@ -51,6 +51,10 @@ public:
         get_parameter("scan_range_start", scan_range_start_);
         get_parameter("scan_range_stop",  scan_range_stop_);
 
+        RCLCPP_INFO(get_logger(), "scanfreq:    %ld Hz", scanfreq_);
+        RCLCPP_INFO(get_logger(), "laser_enable:%s", laser_enable_ ? "true" : "false");
+        RCLCPP_INFO(get_logger(), "scan_range:  [%ld, %ld] deg", scan_range_start_, scan_range_stop_);
+
         RCLCPP_INFO(get_logger(), "sensorip:    %s", sensorip_.c_str());
         RCLCPP_INFO(get_logger(), "port:        %s", port_.c_str());
         RCLCPP_INFO(get_logger(), "frame_id:    %s", frame_id_.c_str());
@@ -63,10 +67,10 @@ public:
         // ── HTTP 센서 설정 (configure_sensor == true) ─────────────────────
         if (configure_sensor_) {
             RCLCPP_INFO(get_logger(), "Configuring LiDAR via HTTP ...");
-            sensor_config(sensorip_, "/api/v1/sensor/scanfreq",          scanfreq_,         get_logger());
-            sensor_config(sensorip_, "/api/v1/sensor/laser_enable",      laser_enable_,     get_logger());
-            sensor_config(sensorip_, "/api/v1/sensor/scan_range/start",  scan_range_start_, get_logger());
-            sensor_config(sensorip_, "/api/v1/sensor/scan_range/stop",   scan_range_stop_,  get_logger());
+            sensor_config(sensorip_, "/api/v1/sensor/scanfreq",         std::to_string(scanfreq_),         get_logger());
+            sensor_config(sensorip_, "/api/v1/sensor/laser_enable",     laser_enable_ ? "true" : "false",  get_logger());
+            sensor_config(sensorip_, "/api/v1/sensor/scan_range/start", std::to_string(scan_range_start_), get_logger());
+            sensor_config(sensorip_, "/api/v1/sensor/scan_range/stop",  std::to_string(scan_range_stop_),  get_logger());
         }
 
         // ── UDP 소켓 생성 ─────────────────────────────────────────────────
@@ -238,7 +242,8 @@ private:
 
     // ── 멤버 변수 ──────────────────────────────────────────────────────────
     std::string sensorip_, hostip_, port_, frame_id_, output_topic_;
-    std::string scanfreq_, laser_enable_, scan_range_start_, scan_range_stop_;
+    int64_t     scanfreq_, scan_range_start_, scan_range_stop_;
+    bool        laser_enable_;
     bool        inverted_;
     int         angle_offset_;
     bool        configure_sensor_;
