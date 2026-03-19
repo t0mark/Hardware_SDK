@@ -149,6 +149,8 @@ def generate_launch_description():
             executable='move_group',
             name='move_group',
             output='screen',
+            sigterm_timeout='2',
+            sigkill_timeout='2',
             parameters=[
                 # robot_description: xacro 처리
                 {
