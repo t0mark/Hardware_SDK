@@ -9,6 +9,7 @@ find_package(geometry_msgs REQUIRED)
 find_package(control_msgs REQUIRED)
 find_package(rby1-sdk REQUIRED)
 find_package(CURL REQUIRED)
+find_package(tf2_ros REQUIRED)
 
 # ── hardware_node (C++) ───────────────────────────────────────────────────────
 add_executable(hardware_node src/hardware_node.cpp)
@@ -32,8 +33,13 @@ target_include_directories(lidar_node PRIVATE include)
 ament_target_dependencies(lidar_node rclcpp sensor_msgs)
 target_link_libraries(lidar_node curl)
 
+
+# ── merge_laserscan_node (C++) ────────────────────────────────────────────────
+add_executable(merge_laserscan_node src/merge_laserscan_node.cpp)
+ament_target_dependencies(merge_laserscan_node rclcpp sensor_msgs geometry_msgs tf2_ros)
+
 install(
-  TARGETS hardware_node mobility_node wholebody_control_node lidar_node
+  TARGETS hardware_node mobility_node wholebody_control_node lidar_node merge_laserscan_node
   DESTINATION lib/${PROJECT_NAME}
 )
 

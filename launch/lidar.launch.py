@@ -59,4 +59,19 @@ def generate_launch_description():
                 'scan_range_stop':  315,
             }],
         ),
+
+        # ── LaserScan 병합 (scan_left + scan_right → scan) ────────────────
+        Node(
+            package='rby1',
+            executable='merge_laserscan_node',
+            name='laser_scan_merger',
+            output='screen',
+            parameters=[{
+                'scan0_topic':    'scan_left',
+                'scan1_topic':    'scan_right',
+                'output_topic':   'scan',
+                'target_frame':   'base_link',
+                'tf_timeout_sec': 0.2,
+            }],
+        ),
     ])
