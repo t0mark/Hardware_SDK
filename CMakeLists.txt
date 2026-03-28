@@ -47,14 +47,14 @@ add_executable(turn_off_node src/turn_off_node.cpp)
 ament_target_dependencies(turn_off_node rclcpp)
 target_link_libraries(turn_off_node rby1-sdk::rby1-sdk)
 
-# ── gain_node (C++) ───────────────────────────────────────────────────────────
-add_executable(gain_node src/gain_node.cpp)
-ament_target_dependencies(gain_node rclcpp)
-target_link_libraries(gain_node rby1-sdk::rby1-sdk)
+# ── head_gain_node (C++) ──────────────────────────────────────────────────────
+add_executable(head_gain_node src/head_gain_node.cpp)
+ament_target_dependencies(head_gain_node rclcpp)
+target_link_libraries(head_gain_node rby1-sdk::rby1-sdk)
 
 install(
   TARGETS hardware_node mobility_node wholebody_control_node lidar_node merge_laserscan_node
-          zero_pose_node turn_off_node gain_node
+          zero_pose_node turn_off_node head_gain_node
   DESTINATION lib/${PROJECT_NAME}
 )
 

@@ -28,7 +28,7 @@ int run_set_gains(
   uint16_t h1_p, uint16_t h1_i, uint16_t h1_d)
 {
   using RobotT = rb::Robot<ModelT>;
-  auto logger = rclcpp::get_logger("gain_node");
+  auto logger = rclcpp::get_logger("head_gain_node");
 
   auto robot = RobotT::Create(address);
 
@@ -88,7 +88,7 @@ int main(int argc, char** argv)
 {
   rclcpp::init(argc, argv);
 
-  auto param_node = rclcpp::Node::make_shared("gain_param_reader");
+  auto param_node = rclcpp::Node::make_shared("head_gain_param_reader");
   param_node->declare_parameter<std::string>("robot_ip", "192.168.3.25:50051");
   param_node->declare_parameter<std::string>("model",    "a");
 
