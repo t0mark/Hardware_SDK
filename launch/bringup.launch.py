@@ -38,7 +38,7 @@ def generate_launch_description():
         # ── 런치 인자 ─────────────────────────────────────────────────────────
         DeclareLaunchArgument(
             'robot_ip',
-            default_value='192.168.30.1:50051',
+            default_value='192.168.3.25:50051',
             description='Robot gRPC address (host:port)',
         ),
         DeclareLaunchArgument(
@@ -94,7 +94,7 @@ def generate_launch_description():
             name='rby1_hardware',
             output='screen',
             parameters=[{
-                'robot_ip': LaunchConfiguration('robot_ip'),
+                'robot_address': LaunchConfiguration('robot_ip'),
                 'model':         LaunchConfiguration('model'),
                 'rate':          LaunchConfiguration('rate'),
             }],
@@ -107,7 +107,7 @@ def generate_launch_description():
             name='rby1_mobility',
             output='screen',
             parameters=[{
-                'robot_ip': LaunchConfiguration('robot_ip'),
+                'robot_address': LaunchConfiguration('robot_ip'),
                 'model':         LaunchConfiguration('model'),
             }],
         ),
@@ -119,7 +119,7 @@ def generate_launch_description():
             name='rby1_wholebody_controller',
             output='screen',
             parameters=[{
-                'robot_ip': LaunchConfiguration('robot_ip'),
+                'robot_address': LaunchConfiguration('robot_ip'),
             }],
         ),
 
