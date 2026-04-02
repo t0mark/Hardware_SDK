@@ -15,16 +15,21 @@ add_executable(hardware_node src/hardware_node.cpp)
 ament_target_dependencies(hardware_node rclcpp sensor_msgs)
 target_link_libraries(hardware_node rby1-sdk::rby1-sdk)
 
-# ── mobility_node (C++) ───────────────────────────────────────────────────────
-add_executable(mobility_node src/mobility_node.cpp)
-ament_target_dependencies(mobility_node rclcpp geometry_msgs)
-target_link_libraries(mobility_node rby1-sdk::rby1-sdk)
+# ── cmd_vel_node (C++) ───────────────────────────────────────────────────────
+add_executable(cmd_vel_node src/cmd_vel_node.cpp)
+ament_target_dependencies(cmd_vel_node rclcpp geometry_msgs)
+target_link_libraries(cmd_vel_node rby1-sdk::rby1-sdk)
 
-# ── wholebody_control_node (C++) ──────────────────────────────────────────────
-add_executable(wholebody_control_node src/wholebody_control_node.cpp)
-ament_target_dependencies(wholebody_control_node
+# ── moveit_node (C++) ─────────────────────────────────────────────────────────
+add_executable(moveit_node src/moveit_node.cpp)
+ament_target_dependencies(moveit_node
   rclcpp rclcpp_action sensor_msgs control_msgs)
-target_link_libraries(wholebody_control_node rby1-sdk::rby1-sdk)
+target_link_libraries(moveit_node rby1-sdk::rby1-sdk)
+
+# ── joint_control_node (C++) ─────────────────────────────────────────────────
+add_executable(joint_control_node src/joint_control_node.cpp)
+ament_target_dependencies(joint_control_node rclcpp sensor_msgs)
+target_link_libraries(joint_control_node rby1-sdk::rby1-sdk)
 
 # ── lidar_node (C++) ──────────────────────────────────────────────────────────
 add_executable(lidar_node src/lidar_node.cpp src/lidar_remote.cpp)
@@ -53,7 +58,8 @@ ament_target_dependencies(head_gain_node rclcpp)
 target_link_libraries(head_gain_node rby1-sdk::rby1-sdk)
 
 install(
-  TARGETS hardware_node mobility_node wholebody_control_node lidar_node merge_laserscan_node
+  TARGETS hardware_node cmd_vel_node moveit_node joint_control_node
+          lidar_node merge_laserscan_node
           zero_pose_node turn_off_node head_gain_node
   DESTINATION lib/${PROJECT_NAME}
 )

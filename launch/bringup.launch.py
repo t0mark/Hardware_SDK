@@ -3,7 +3,9 @@ import yaml
 
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument, GroupAction, IncludeLaunchDescription, SetLaunchConfiguration
+from launch.actions import (DeclareLaunchArgument, GroupAction,
+                             IncludeLaunchDescription, OpaqueFunction,
+                             SetLaunchConfiguration)
 from launch.conditions import IfCondition
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import Command, LaunchConfiguration, PathJoinSubstitution
@@ -16,10 +18,7 @@ def generate_launch_description():
     pkg_share     = FindPackageShare('rby1')
     pkg_share_str = get_package_share_directory('rby1')
 
-    # ── MoveIt 설정 파일 로드 (yaml → dict) ──────────────────────────────────
-    # kinematics.yaml은 robot_description_kinematics 네임스페이스로 전달
-    # moveit_controllers.yaml은 최상위 파라미터로 직접 전달
-    # joint_limits.yaml은 robot_description_planning 네임스페이스로 전달
+    # ── MoveIt 설정 파일 로드 (high 모드에서만 사용) ──────────────────────────
     srdf_file = os.path.join(pkg_share_str, 'config', 'moveit', 'rby1.srdf')
     kin_file  = os.path.join(pkg_share_str, 'config', 'moveit', 'kinematics.yaml')
     ctrl_file = os.path.join(pkg_share_str, 'config', 'moveit', 'moveit_controllers.yaml')
@@ -34,8 +33,112 @@ def generate_launch_description():
     with open(jlim_file, 'r') as f:
         joint_limits = yaml.safe_load(f)
 
+    # ── 모드별 노드 구성 (OpaqueFunction으로 런타임 if문 사용) ────────────────
+    def launch_setup(context, *args, **kwargs):
+        mode  = context.launch_configurations['control_mode']
+        ip    = context.launch_configurations['robot_ip']
+        model = context.launch_configurations['model']
+        ee    = context.launch_configurations['end_effector']
+
+        nodes = []
+
+        # high / medium: cmd_vel_node (바퀴 속도 명령)
+        if mode in ('high', 'medium'):
+            nodes.append(Node(
+                package='rby1',
+                executable='cmd_vel_node',
+                namespace='rby1',
+                name='cmd_vel_node',
+                output='screen',
+                parameters=[{
+                    'robot_address': ip,
+                    'model':         model,
+                }],
+            ))
+
+        # high: moveit_node + move_group (MoveIt 궤적 제어)
+        if mode == 'high':
+            nodes.append(Node(
+                package='rby1',
+                executable='moveit_node',
+                namespace='rby1',
+                name='moveit_node',
+                output='screen',
+                parameters=[{
+                    'robot_address': ip,
+                }],
+            ))
+
+            xacro_file = os.path.join(
+                get_package_share_directory('rby1'), 'urdf', 'rby1_full_ros.urdf.xacro')
+
+            nodes.append(Node(
+                package='moveit_ros_move_group',
+                executable='move_group',
+                name='move_group',
+                output='screen',
+                sigterm_timeout='2',
+                sigkill_timeout='2',
+                parameters=[
+                    {
+                        'robot_description': ParameterValue(
+                            Command(['xacro ', xacro_file, ' end_effector:=', ee]),
+                            value_type=str,
+                        ),
+                    },
+                    {'robot_description_semantic': srdf_content},
+                    {'robot_description_kinematics': kinematics},
+                    moveit_controllers,
+                    {'robot_description_planning': joint_limits},
+                    {
+                        'move_group': {
+                            'planning_plugin': 'ompl_interface/OMPLPlanner',
+                            'request_adapters': (
+                                'default_planner_request_adapters/AddTimeOptimalParameterization '
+                                'default_planner_request_adapters/FixWorkspaceBounds '
+                                'default_planner_request_adapters/FixStartStateBounds '
+                                'default_planner_request_adapters/FixStartStateCollision '
+                                'default_planner_request_adapters/FixStartStatePathConstraints'
+                            ),
+                            'start_state_max_bounds_error': 0.1,
+                        },
+                        'allow_trajectory_execution': True,
+                        'publish_robot_description_semantic': True,
+                        'monitor_dynamics': False,
+                        'planning_scene_monitor_options': {
+                            'robot_description': 'robot_description',
+                            'joint_state_topic': '/joint_states',
+                        },
+                    },
+                ],
+            ))
+
+        # medium / low: joint_control_node (직접 관절 위치/속도 명령)
+        if mode in ('medium', 'low'):
+            nodes.append(Node(
+                package='rby1',
+                executable='joint_control_node',
+                namespace='rby1',
+                name='joint_control_node',
+                output='screen',
+                parameters=[{
+                    'robot_address': ip,
+                    'model':         model,
+                    'control_base':  mode == 'low',
+                    'cmd_timeout':   0.5,
+                }],
+            ))
+
+        return nodes
+
     return LaunchDescription([
         # ── 런치 인자 ─────────────────────────────────────────────────────────
+        DeclareLaunchArgument(
+            'control_mode',
+            default_value='high',
+            choices=['high', 'medium', 'low'],
+            description='Control mode: high=MoveIt, medium=cmd_vel+direct joints, low=full direct',
+        ),
         DeclareLaunchArgument(
             'robot_ip',
             default_value='192.168.3.25:50051',
@@ -69,8 +172,7 @@ def generate_launch_description():
             description='Launch dual Lakibeam LiDAR nodes (lidar.launch.py)',
         ),
 
-        # ── description (robot_state_publisher만 — rviz는 아래에서 직접 실행) ──
-        # GroupAction(scoped=True)으로 'rviz'='false'를 이 include 범위에만 한정
+        # ── description (robot_state_publisher) ───────────────────────────────
         GroupAction(
             scoped=True,
             actions=[
@@ -100,29 +202,6 @@ def generate_launch_description():
             }],
         ),
 
-        # ── mobility_node ─────────────────────────────────────────────────────
-        Node(
-            package='rby1',
-            executable='mobility_node',
-            name='rby1_mobility',
-            output='screen',
-            parameters=[{
-                'robot_address': LaunchConfiguration('robot_ip'),
-                'model':         LaunchConfiguration('model'),
-            }],
-        ),
-
-        # ── wholebody_control_node ────────────────────────────────────────────
-        Node(
-            package='rby1',
-            executable='wholebody_control_node',
-            name='rby1_wholebody_controller',
-            output='screen',
-            parameters=[{
-                'robot_address': LaunchConfiguration('robot_ip'),
-            }],
-        ),
-
         # ── LiDAR 노드 (조건부) ───────────────────────────────────────────────
         GroupAction(
             condition=IfCondition(LaunchConfiguration('use_lidar')),
@@ -143,67 +222,7 @@ def generate_launch_description():
             arguments=['0', '0', '0', '0', '0', '0', 'world', 'base_link'],
         ),
 
-        # ── move_group ────────────────────────────────────────────────────────
-        Node(
-            package='moveit_ros_move_group',
-            executable='move_group',
-            name='move_group',
-            output='screen',
-            sigterm_timeout='2',
-            sigkill_timeout='2',
-            parameters=[
-                # robot_description: xacro 처리
-                {
-                    'robot_description': ParameterValue(
-                        Command([
-                            'xacro ',
-                            PathJoinSubstitution([
-                                pkg_share, 'urdf', 'rby1_full_ros.urdf.xacro'
-                            ]),
-                            ' end_effector:=',
-                            LaunchConfiguration('end_effector'),
-                        ]),
-                        value_type=str,
-                    ),
-                },
-                # SRDF 문자열
-                {'robot_description_semantic': srdf_content},
-                # IK 솔버 설정 (robot_description_kinematics 네임스페이스)
-                {'robot_description_kinematics': kinematics},
-                # MoveIt 컨트롤러 매니저 (최상위 파라미터로 직접)
-                moveit_controllers,
-                # 관절 제한 (robot_description_planning 네임스페이스)
-                {'robot_description_planning': joint_limits},
-                # move_group 옵션
-                # deprecated 모드에서 pipeline namespace = "move_group" → 파라미터 경로: move_group.*
-                {
-                    'move_group': {
-                        'planning_plugin': 'ompl_interface/OMPLPlanner',
-                        # FixStartStateCollision: 시작 상태가 self-collision일 때 소량 jiggle
-                        # FixStartStateBounds:   관절값이 한계를 미세하게 벗어날 때 클리핑
-                        'request_adapters': (
-                            'default_planner_request_adapters/AddTimeOptimalParameterization '
-                            'default_planner_request_adapters/FixWorkspaceBounds '
-                            'default_planner_request_adapters/FixStartStateBounds '
-                            'default_planner_request_adapters/FixStartStateCollision '
-                            'default_planner_request_adapters/FixStartStatePathConstraints'
-                        ),
-                        'start_state_max_bounds_error': 0.1,
-                    },
-                    'allow_trajectory_execution': True,
-                    'publish_robot_description_semantic': True,
-                    'monitor_dynamics': False,
-                    'planning_scene_monitor_options': {
-                        'robot_description': 'robot_description',
-                        'joint_state_topic': '/joint_states',
-                    },
-                },
-            ],
-        ),
-
-        # ── RViz2 (MoveIt 파라미터 포함) ─────────────────────────────────────
-        # rviz2도 robot_description_semantic, robot_description_kinematics가
-        # 필요해야 인터랙티브 마커(goal 지정 UI)가 동작함
+        # ── RViz2 ─────────────────────────────────────────────────────────────
         Node(
             package='rviz2',
             executable='rviz2',
@@ -216,4 +235,7 @@ def generate_launch_description():
                 {'robot_description_kinematics': kinematics},
             ],
         ),
+
+        # ── 모드별 노드 (control_mode에 따라 동적 구성) ───────────────────────
+        OpaqueFunction(function=launch_setup),
     ])
