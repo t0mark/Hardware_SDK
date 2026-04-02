@@ -60,7 +60,7 @@ def generate_launch_description():
         ),
         DeclareLaunchArgument(
             'rviz',
-            default_value='true',
+            default_value='false',
             description='Launch RViz',
         ),
         DeclareLaunchArgument(

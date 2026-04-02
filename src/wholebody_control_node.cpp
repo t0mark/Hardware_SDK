@@ -80,12 +80,9 @@ class RBY1WholebodyControlNode : public rclcpp::Node {
     }
     RCLCPP_INFO(get_logger(), "로봇 연결 완료");
 
-    // CommandStream 생성 (hardware_node가 이미 초기화 완료했으므로 바로 사용 가능)
-    stream_ = robot_->CreateCommandStream();
-
     stream_ready_ = true;
     RCLCPP_INFO(get_logger(),
-                "CommandStream 준비 완료. FollowJointTrajectory 골 수락 시작.");
+                "로봇 연결 완료. FollowJointTrajectory 골 수락 시작.");
   }
 
   // ── 액션 핸들러 ───────────────────────────────────────────────────────────
@@ -126,7 +123,7 @@ class RBY1WholebodyControlNode : public rclcpp::Node {
 
     // 매 실행 전 stream 재생성: 이전 trajectory 후 SDK가 stream을 만료시키므로
     try {
-      stream_ = robot_->CreateCommandStream();
+      stream_ = robot_->CreateCommandStream(2);
     } catch (const std::exception& e) {
       RCLCPP_ERROR(get_logger(), "CommandStream 재생성 실패: %s", e.what());
       auto result = std::make_shared<FJT::Result>();
@@ -150,6 +147,7 @@ class RBY1WholebodyControlNode : public rclcpp::Node {
         result->error_code = FJT::Result::SUCCESSFUL;
         goal_handle->canceled(result);
         RCLCPP_INFO(get_logger(), "궤적 취소됨 (포인트 %zu/%zu)", pt_idx, n_points);
+        stream_ = nullptr;
         return;
       }
 
@@ -268,6 +266,7 @@ class RBY1WholebodyControlNode : public rclcpp::Node {
         RCLCPP_ERROR(get_logger(), "SendCommand 실패: %s", e.what());
         result->error_code = FJT::Result::PATH_TOLERANCE_VIOLATED;
         goal_handle->abort(result);
+        stream_ = nullptr;
         return;
       }
 
@@ -291,6 +290,9 @@ class RBY1WholebodyControlNode : public rclcpp::Node {
     result->error_code = FJT::Result::SUCCESSFUL;
     goal_handle->succeed(result);
     RCLCPP_INFO(get_logger(), "궤적 실행 완료 (%zu 포인트)", n_points);
+
+    // 스트림 해제 → mobility(priority=1)에 제어권 반환
+    stream_ = nullptr;
   }
 
   // ── 멤버 변수 ─────────────────────────────────────────────────────────────

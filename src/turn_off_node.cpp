@@ -37,6 +37,14 @@ int run_turn_off(const std::string& address,
   {
     const auto& cm = robot->GetControlManagerState();
     if (cm.state == rb::ControlManagerState::State::kEnabled) {
+      // 모션 실행 중이면 먼저 취소
+      if (cm.control_state == rb::ControlManagerState::ControlState::kExecuting ||
+          cm.control_state == rb::ControlManagerState::ControlState::kSwitching) {
+        RCLCPP_INFO(logger, "Control manager is executing — cancelling control ...");
+        robot->CancelControl();
+        std::this_thread::sleep_for(std::chrono::milliseconds(500));
+      }
+
       RCLCPP_INFO(logger, "Disabling control manager ...");
       if (!robot->DisableControlManager()) {
         RCLCPP_ERROR(logger, "Failed to disable control manager (continuing...)");
@@ -49,6 +57,7 @@ int run_turn_off(const std::string& address,
                   rb::to_string(cm.state).c_str());
     }
   }
+  std::this_thread::sleep_for(std::chrono::seconds(1));
 
   // ── Step 2: Servo Off ─────────────────────────────────────────────────────────
   {
@@ -65,6 +74,7 @@ int run_turn_off(const std::string& address,
     }
     std::this_thread::sleep_for(std::chrono::seconds(1));
   }
+  std::this_thread::sleep_for(std::chrono::seconds(1));
 
   // ── Step 3: Power Off ─────────────────────────────────────────────────────────
   {

@@ -14,12 +14,12 @@
 // Parameters:
 //   robot_ip      : gRPC 주소 (default: "192.168.3.25:50051")
 //   model         : 로봇 모델 ("a" / "m" / "ub", default: "a")
-//   head_0_p_gain : head_0 P 게인 (default: 800)
+//   head_0_p_gain : head_0 P 게인 (default: 200)
 //   head_0_i_gain : head_0 I 게인 (default: 0)
-//   head_0_d_gain : head_0 D 게인 (default: 4000)
-//   head_1_p_gain : head_1 P 게인 (default: 800)
+//   head_0_d_gain : head_0 D 게인 (default: 8000)
+//   head_1_p_gain : head_1 P 게인 (default: 200)
 //   head_1_i_gain : head_1 I 게인 (default: 0)
-//   head_1_d_gain : head_1 D 게인 (default: 4000)
+//   head_1_d_gain : head_1 D 게인 (default: 8000)
 // ─────────────────────────────────────────────────────────────────────────────
 template <typename ModelT>
 int run_set_gains(
@@ -92,12 +92,12 @@ int main(int argc, char** argv)
   param_node->declare_parameter<std::string>("robot_ip", "192.168.3.25:50051");
   param_node->declare_parameter<std::string>("model",    "a");
 
-  param_node->declare_parameter<int>("head_0_p_gain", 400);
+  param_node->declare_parameter<int>("head_0_p_gain", 200);
   param_node->declare_parameter<int>("head_0_i_gain", 0);
-  param_node->declare_parameter<int>("head_0_d_gain", 0);
-  param_node->declare_parameter<int>("head_1_p_gain", 400);
+  param_node->declare_parameter<int>("head_0_d_gain", 8000);
+  param_node->declare_parameter<int>("head_1_p_gain", 200);
   param_node->declare_parameter<int>("head_1_i_gain", 0);
-  param_node->declare_parameter<int>("head_1_d_gain", 0);
+  param_node->declare_parameter<int>("head_1_d_gain", 8000);
 
   const auto address = param_node->get_parameter("robot_ip").as_string();
   const auto model   = param_node->get_parameter("model").as_string();

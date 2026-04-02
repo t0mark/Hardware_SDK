@@ -19,14 +19,15 @@
 // ─────────────────────────────────────────────────────────────────────────────
 template <typename ModelT>
 class RBY1MobilityNode : public rclcpp::Node {
-  using RobotT = rb::Robot<ModelT>;
+  using RobotT  = rb::Robot<ModelT>;
+  using StreamT = rb::RobotCommandStreamHandler<ModelT>;
 
  public:
   explicit RBY1MobilityNode(const std::string& address, double control_hz,
                              double cmd_vel_timeout)
       : Node("rby1_mobility"),
         address_(address),
-        min_time_(2.0 / control_hz),
+        min_time_(1.0 / control_hz),
         cmd_vel_timeout_(cmd_vel_timeout) {
     // UB 모델은 모바일 베이스 없음
     if constexpr (ModelT::kMobilityIdx.size() == 0) {
@@ -50,11 +51,11 @@ class RBY1MobilityNode : public rclcpp::Node {
     RCLCPP_INFO(get_logger(),
                 "Mobility node ready. Subscribed to /cmd_vel (timeout=%.2fs, "
                 "control_hz=%.1f)",
-                cmd_vel_timeout_, 1.0 / min_time_ * 2.0);
+                cmd_vel_timeout_, 1.0 / min_time_);
   }
 
  private:
-  // ── 로봇 연결 ──────────────────────────────────────────────────────────────
+  // ── 로봇 연결 및 스트림 생성 ───────────────────────────────────────────────
   void connect_robot() {
     robot_ = RobotT::Create(address_);
 
@@ -64,6 +65,9 @@ class RBY1MobilityNode : public rclcpp::Node {
       throw std::runtime_error("Failed to connect to robot");
     }
     RCLCPP_INFO(get_logger(), "Connected");
+
+    stream_ = robot_->CreateCommandStream(1);
+    RCLCPP_INFO(get_logger(), "CommandStream ready (priority=1)");
   }
 
   // ── /cmd_vel 콜백 ─────────────────────────────────────────────────────────
@@ -80,11 +84,9 @@ class RBY1MobilityNode : public rclcpp::Node {
     }
 
     geometry_msgs::msg::Twist twist;
-    bool is_stale = false;
 
     {
       std::lock_guard<std::mutex> lock(twist_mutex_);
-      twist = latest_twist_;
 
       if (last_cmd_time_.nanoseconds() == 0) {
         // 아직 cmd_vel을 한 번도 받지 않음 → 전송 스킵
@@ -93,13 +95,11 @@ class RBY1MobilityNode : public rclcpp::Node {
 
       auto elapsed = (now() - last_cmd_time_).seconds();
       if (elapsed > cmd_vel_timeout_) {
-        is_stale = true;
+        // 타임아웃: 정지 명령 전송
+        twist = geometry_msgs::msg::Twist{};
+      } else {
+        twist = latest_twist_;
       }
-    }
-
-    if (is_stale) {
-      // 타임아웃: 정지 명령 전송
-      twist = geometry_msgs::msg::Twist{};
     }
 
     Eigen::Vector2d lin;
@@ -110,8 +110,8 @@ class RBY1MobilityNode : public rclcpp::Node {
     lin_acc << 10.0, 10.0;
     double ang_acc = 10.0;
 
-    try {
-      robot_->SendCommand(
+    auto send = [&]() {
+      stream_->SendCommand(
           rb::RobotCommandBuilder().SetCommand(
               rb::ComponentBasedCommandBuilder().SetMobilityCommand(
                   rb::MobilityCommandBuilder().SetCommand(
@@ -119,8 +119,18 @@ class RBY1MobilityNode : public rclcpp::Node {
                           .SetVelocity(lin, ang)
                           .SetMinimumTime(min_time_)
                           .SetAccelerationLimit(lin_acc, ang_acc)))));
-    } catch (const std::exception& e) {
-      RCLCPP_WARN(get_logger(), "SendCommand failed: %s", e.what());
+    };
+
+    try {
+      send();
+    } catch (const std::exception&) {
+      // 스트림 만료 시 재생성 후 재시도
+      try {
+        stream_ = robot_->CreateCommandStream(1);
+        send();
+      } catch (const std::exception& e) {
+        RCLCPP_WARN(get_logger(), "SendCommand failed: %s", e.what());
+      }
     }
   }
 
@@ -130,6 +140,7 @@ class RBY1MobilityNode : public rclcpp::Node {
   double cmd_vel_timeout_;
 
   std::shared_ptr<RobotT> robot_;
+  std::unique_ptr<StreamT> stream_;
 
   rclcpp::Subscription<geometry_msgs::msg::Twist>::SharedPtr cmd_vel_sub_;
   rclcpp::TimerBase::SharedPtr timer_;
