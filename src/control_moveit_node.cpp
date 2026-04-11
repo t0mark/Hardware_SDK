@@ -33,7 +33,7 @@ class RBY1WholebodyControlNode : public rclcpp::Node {
 
  public:
   explicit RBY1WholebodyControlNode(const std::string& address)
-      : Node("rby1_wholebody_controller"), address_(address) {
+      : Node("control_moveit_node"), address_(address) {
     // /joint_states 구독 → hardware_node 준비 완료 감지 + 현재 관절 위치 유지
     joint_state_sub_ = create_subscription<sensor_msgs::msg::JointState>(
         "/joint_states", 10,
@@ -318,7 +318,7 @@ class RBY1WholebodyControlNode : public rclcpp::Node {
 int main(int argc, char** argv) {
   rclcpp::init(argc, argv);
 
-  auto param_node = rclcpp::Node::make_shared("rby1_wholebody_param_reader");
+  auto param_node = rclcpp::Node::make_shared("control_moveit_node_param_reader");
   param_node->declare_parameter<std::string>("robot_address", "192.168.12.1:50051");
 
   const auto address = param_node->get_parameter("robot_address").as_string();

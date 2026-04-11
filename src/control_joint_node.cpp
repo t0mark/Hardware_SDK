@@ -36,7 +36,7 @@ class RBY1JointControlNode : public rclcpp::Node {
                                  double control_hz,
                                  double cmd_timeout,
                                  bool   control_base)
-      : Node("joint_control_node"),
+      : Node("control_joint_node"),
         address_(address),
         min_time_(1.0 / control_hz),
         cmd_timeout_(cmd_timeout),
@@ -178,34 +178,36 @@ class RBY1JointControlNode : public rclcpp::Node {
     const double hold_time = min_time_ + 0.3;
 
     auto send = [&]() {
-      auto cmd_builder =
-          rb::ComponentBasedCommandBuilder()
-              .SetBodyCommand(
-                  rb::BodyComponentBasedCommandBuilder()
-                      .SetTorsoCommand(
-                          rb::JointPositionCommandBuilder()
-                              .SetCommandHeader(
-                                  rb::CommandHeaderBuilder().SetControlHoldTime(hold_time))
-                              .SetMinimumTime(min_time_)
-                              .SetPosition(torso))
-                      .SetRightArmCommand(
-                          rb::JointPositionCommandBuilder()
-                              .SetCommandHeader(
-                                  rb::CommandHeaderBuilder().SetControlHoldTime(hold_time))
-                              .SetMinimumTime(min_time_)
-                              .SetPosition(right_arm))
-                      .SetLeftArmCommand(
-                          rb::JointPositionCommandBuilder()
-                              .SetCommandHeader(
-                                  rb::CommandHeaderBuilder().SetControlHoldTime(hold_time))
-                              .SetMinimumTime(min_time_)
-                              .SetPosition(left_arm)))
-              .SetHeadCommand(
-                  rb::JointPositionCommandBuilder()
-                      .SetCommandHeader(
-                          rb::CommandHeaderBuilder().SetControlHoldTime(hold_time))
-                      .SetMinimumTime(min_time_)
-                      .SetPosition(head));
+      // ComponentBasedCommandBuilder는 복사 생성자가 삭제되어 있어
+      // 기본 생성 후 메서드를 호출하는 방식으로 빌드해야 함
+      rb::ComponentBasedCommandBuilder cmd_builder;
+      cmd_builder
+          .SetBodyCommand(
+              rb::BodyComponentBasedCommandBuilder()
+                  .SetTorsoCommand(
+                      rb::JointPositionCommandBuilder()
+                          .SetCommandHeader(
+                              rb::CommandHeaderBuilder().SetControlHoldTime(hold_time))
+                          .SetMinimumTime(min_time_)
+                          .SetPosition(torso))
+                  .SetRightArmCommand(
+                      rb::JointPositionCommandBuilder()
+                          .SetCommandHeader(
+                              rb::CommandHeaderBuilder().SetControlHoldTime(hold_time))
+                          .SetMinimumTime(min_time_)
+                          .SetPosition(right_arm))
+                  .SetLeftArmCommand(
+                      rb::JointPositionCommandBuilder()
+                          .SetCommandHeader(
+                              rb::CommandHeaderBuilder().SetControlHoldTime(hold_time))
+                          .SetMinimumTime(min_time_)
+                          .SetPosition(left_arm)))
+          .SetHeadCommand(
+              rb::JointPositionCommandBuilder()
+                  .SetCommandHeader(
+                      rb::CommandHeaderBuilder().SetControlHoldTime(hold_time))
+                  .SetMinimumTime(min_time_)
+                  .SetPosition(head));
 
       if constexpr (kNWheels > 0) {
         if (control_base_ && has_wheel_cmd) {
@@ -261,7 +263,7 @@ class RBY1JointControlNode : public rclcpp::Node {
 int main(int argc, char** argv) {
   rclcpp::init(argc, argv);
 
-  auto param_node = rclcpp::Node::make_shared("joint_control_param_reader");
+  auto param_node = rclcpp::Node::make_shared("control_joint_node_param_reader");
   param_node->declare_parameter<std::string>("robot_address", "192.168.12.1:50051");
   param_node->declare_parameter<std::string>("model", "a");
   param_node->declare_parameter<double>("control_hz", 50.0);

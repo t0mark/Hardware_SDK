@@ -20,7 +20,7 @@ class RBY1HardwareNode : public rclcpp::Node {
 
  public:
   explicit RBY1HardwareNode(const std::string& address, double rate)
-      : Node("rby1_hardware"), address_(address), rate_(rate) {
+      : Node("init_hardware_node"), address_(address), rate_(rate) {
     joint_state_pub_ =
         create_publisher<sensor_msgs::msg::JointState>("/joint_states", 10);
 
@@ -127,7 +127,7 @@ int main(int argc, char** argv) {
 
   // 파라미터는 rclcpp::Node 생성 전에 node options로 오버라이드 가능하나,
   // 여기서는 간단히 임시 노드로 읽는다.
-  auto param_node = rclcpp::Node::make_shared("rby1_hardware_param_reader");
+  auto param_node = rclcpp::Node::make_shared("init_hardware_node_param_reader");
   param_node->declare_parameter<std::string>("robot_address", "192.168.30.1:50051");
   param_node->declare_parameter<std::string>("model", "a");
   param_node->declare_parameter<double>("rate", 50.0);

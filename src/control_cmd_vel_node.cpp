@@ -25,7 +25,7 @@ class RBY1MobilityNode : public rclcpp::Node {
  public:
   explicit RBY1MobilityNode(const std::string& address, double control_hz,
                              double cmd_vel_timeout)
-      : Node("rby1_mobility"),
+      : Node("control_cmd_vel_node"),
         address_(address),
         min_time_(1.0 / control_hz),
         cmd_vel_timeout_(cmd_vel_timeout) {
@@ -156,7 +156,7 @@ class RBY1MobilityNode : public rclcpp::Node {
 int main(int argc, char** argv) {
   rclcpp::init(argc, argv);
 
-  auto param_node = rclcpp::Node::make_shared("rby1_mobility_param_reader");
+  auto param_node = rclcpp::Node::make_shared("control_cmd_vel_node_param_reader");
   param_node->declare_parameter<std::string>("robot_address", "192.168.12.1:50051");
   param_node->declare_parameter<std::string>("model", "a");
   param_node->declare_parameter<double>("control_hz", 10.0);

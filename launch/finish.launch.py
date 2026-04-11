@@ -28,8 +28,8 @@ def generate_launch_description():
     # ── zero_pose_node ─────────────────────────────────────────────────────────
     zero_pose_node = Node(
         package='rby1',
-        executable='zero_pose_node',
-        name='zero_pose_node',
+        executable='control_zero_pose_node',
+        name='control_zero_pose_node',
         output='screen',
         parameters=[{
             'robot_ip':      LaunchConfiguration('robot_ip'),
@@ -41,8 +41,8 @@ def generate_launch_description():
     # ── turn_off_node (zero_pose_node 종료 후 순차 실행) ───────────────────────
     turn_off_node = Node(
         package='rby1',
-        executable='turn_off_node',
-        name='turn_off_node',
+        executable='turn_off_hardware_node',
+        name='turn_off_hardware_node',
         output='screen',
         parameters=[{
             'robot_ip': LaunchConfiguration('robot_ip'),

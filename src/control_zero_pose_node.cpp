@@ -101,7 +101,7 @@ int run_zero_pose(const std::string& address, double minimum_time) {
 int main(int argc, char** argv) {
   rclcpp::init(argc, argv);
 
-  auto param_node = rclcpp::Node::make_shared("zero_pose_param_reader");
+  auto param_node = rclcpp::Node::make_shared("control_zero_pose_node_param_reader");
   param_node->declare_parameter<std::string>("robot_ip", "192.168.3.25:50051");
   param_node->declare_parameter<std::string>("model", "a");
   param_node->declare_parameter<double>("minimum_time", 10.0);

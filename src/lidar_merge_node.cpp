@@ -13,7 +13,7 @@ class MergeLaserScanNode : public rclcpp::Node
 {
 public:
     MergeLaserScanNode()
-    : Node("laser_scan_merger")
+    : Node("lidar_merge_node")
     {
         declare_parameter<std::string>("scan0_topic",    "scan_left");
         declare_parameter<std::string>("scan1_topic",    "scan_right");

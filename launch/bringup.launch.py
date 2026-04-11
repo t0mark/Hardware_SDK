@@ -46,9 +46,9 @@ def generate_launch_description():
         if mode in ('high', 'medium'):
             nodes.append(Node(
                 package='rby1',
-                executable='cmd_vel_node',
+                executable='control_cmd_vel_node',
                 namespace='rby1',
-                name='cmd_vel_node',
+                name='control_cmd_vel_node',
                 output='screen',
                 parameters=[{
                     'robot_address': ip,
@@ -60,9 +60,9 @@ def generate_launch_description():
         if mode == 'high':
             nodes.append(Node(
                 package='rby1',
-                executable='moveit_node',
+                executable='control_moveit_node',
                 namespace='rby1',
-                name='moveit_node',
+                name='control_moveit_node',
                 output='screen',
                 parameters=[{
                     'robot_address': ip,
@@ -117,9 +117,9 @@ def generate_launch_description():
         if mode in ('medium', 'low'):
             nodes.append(Node(
                 package='rby1',
-                executable='joint_control_node',
+                executable='control_joint_node',
                 namespace='rby1',
-                name='joint_control_node',
+                name='control_joint_node',
                 output='screen',
                 parameters=[{
                     'robot_address': ip,
@@ -171,6 +171,24 @@ def generate_launch_description():
             default_value='false',
             description='Launch dual Lakibeam LiDAR nodes (lidar.launch.py)',
         ),
+        DeclareLaunchArgument(
+            'head_0_p_gain', default_value='200', description='head_0 P gain',
+        ),
+        DeclareLaunchArgument(
+            'head_0_i_gain', default_value='0', description='head_0 I gain',
+        ),
+        DeclareLaunchArgument(
+            'head_0_d_gain', default_value='8000', description='head_0 D gain',
+        ),
+        DeclareLaunchArgument(
+            'head_1_p_gain', default_value='200', description='head_1 P gain',
+        ),
+        DeclareLaunchArgument(
+            'head_1_i_gain', default_value='0', description='head_1 I gain',
+        ),
+        DeclareLaunchArgument(
+            'head_1_d_gain', default_value='8000', description='head_1 D gain',
+        ),
 
         # ── description (robot_state_publisher) ───────────────────────────────
         GroupAction(
@@ -192,13 +210,31 @@ def generate_launch_description():
         # ── hardware_node ─────────────────────────────────────────────────────
         Node(
             package='rby1',
-            executable='hardware_node',
-            name='rby1_hardware',
+            executable='init_hardware_node',
+            name='init_hardware_node',
             output='screen',
             parameters=[{
                 'robot_address': LaunchConfiguration('robot_ip'),
                 'model':         LaunchConfiguration('model'),
                 'rate':          LaunchConfiguration('rate'),
+            }],
+        ),
+
+        # ── head gain 노드 (조건부, 일회성) ──────────────────────────────────────
+        Node(
+            package='rby1',
+            executable='control_head_gain_node',
+            name='control_head_gain_node',
+            output='screen',
+            parameters=[{
+                'robot_ip':    LaunchConfiguration('robot_ip'),
+                'model':       LaunchConfiguration('model'),
+                'head_0_p_gain': LaunchConfiguration('head_0_p_gain'),
+                'head_0_i_gain': LaunchConfiguration('head_0_i_gain'),
+                'head_0_d_gain': LaunchConfiguration('head_0_d_gain'),
+                'head_1_p_gain': LaunchConfiguration('head_1_p_gain'),
+                'head_1_i_gain': LaunchConfiguration('head_1_i_gain'),
+                'head_1_d_gain': LaunchConfiguration('head_1_d_gain'),
             }],
         ),
 

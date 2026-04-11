@@ -63,8 +63,8 @@ def generate_launch_description():
         # ── LaserScan 병합 (scan_left + scan_right → scan) ────────────────
         Node(
             package='rby1',
-            executable='merge_laserscan_node',
-            name='laser_scan_merger',
+            executable='lidar_merge_node',
+            name='lidar_merge_node',
             output='screen',
             parameters=[{
                 'scan0_topic':    'scan_left',
