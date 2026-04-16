@@ -46,6 +46,11 @@ add_executable(control_zero_pose_node src/control_zero_pose_node.cpp)
 ament_target_dependencies(control_zero_pose_node rclcpp)
 target_link_libraries(control_zero_pose_node rby1-sdk::rby1-sdk)
 
+# ── control_home_pose_node (C++) ──────────────────────────────────────────────
+add_executable(control_home_pose_node src/control_home_pose_node.cpp)
+ament_target_dependencies(control_home_pose_node rclcpp)
+target_link_libraries(control_home_pose_node rby1-sdk::rby1-sdk)
+
 # ── turn_off_hardware_node (C++) ──────────────────────────────────────────────
 add_executable(turn_off_hardware_node src/turn_off_hardware_node.cpp)
 ament_target_dependencies(turn_off_hardware_node rclcpp)
@@ -59,7 +64,7 @@ target_link_libraries(control_head_gain_node rby1-sdk::rby1-sdk)
 install(
   TARGETS init_hardware_node control_cmd_vel_node control_moveit_node control_joint_node
           lidar_node lidar_merge_node
-          control_zero_pose_node turn_off_hardware_node control_head_gain_node
+          control_zero_pose_node control_home_pose_node turn_off_hardware_node control_head_gain_node
   DESTINATION lib/${PROJECT_NAME}
 )
 

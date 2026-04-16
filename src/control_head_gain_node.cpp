@@ -51,17 +51,33 @@ int run_set_gains(
     RCLCPP_WARN(logger, "Could not read current gains (skipping): %s", e.what());
   }
 
+  // ── Control Manager가 Enabled 상태면 Idle로 전환 (SET은 Idle 상태에서만 가능) ─
+  {
+    const auto& cm = robot->GetControlManagerState();
+    if (cm.state == rb::ControlManagerState::State::kEnabled) {
+      RCLCPP_INFO(logger, "Control Manager is Enabled → disabling before gain set");
+      if (!robot->DisableControlManager()) {
+        RCLCPP_WARN(logger, "DisableControlManager failed — gains may not apply");
+      }
+    }
+  }
+
   // ── 게인 적용 ──────────────────────────────────────────────────────────────
   RCLCPP_INFO(logger, "Applying new gains:");
   RCLCPP_INFO(logger, "  head_0  P=%-5u  I=%-5u  D=%u", h0_p, h0_i, h0_d);
   RCLCPP_INFO(logger, "  head_1  P=%-5u  I=%-5u  D=%u", h1_p, h1_i, h1_d);
 
-  if (!robot->SetPositionPIDGain("head_0", h0_p, h0_i, h0_d)) {
-    RCLCPP_ERROR(logger, "Failed to set gain for head_0");
-    return 1;
-  }
-  if (!robot->SetPositionPIDGain("head_1", h1_p, h1_i, h1_d)) {
-    RCLCPP_ERROR(logger, "Failed to set gain for head_1");
+  try {
+    if (!robot->SetPositionPIDGain("head_0", h0_p, h0_i, h0_d)) {
+      RCLCPP_ERROR(logger, "Failed to set gain for head_0");
+      return 1;
+    }
+    if (!robot->SetPositionPIDGain("head_1", h1_p, h1_i, h1_d)) {
+      RCLCPP_ERROR(logger, "Failed to set gain for head_1");
+      return 1;
+    }
+  } catch (const std::exception& e) {
+    RCLCPP_ERROR(logger, "Exception while setting gains: %s", e.what());
     return 1;
   }
 

@@ -61,7 +61,6 @@ def generate_launch_description():
             nodes.append(Node(
                 package='rby1',
                 executable='control_moveit_node',
-                namespace='rby1',
                 name='control_moveit_node',
                 output='screen',
                 parameters=[{
@@ -163,7 +162,7 @@ def generate_launch_description():
         ),
         DeclareLaunchArgument(
             'rviz',
-            default_value='false',
+            default_value='true',
             description='Launch RViz',
         ),
         DeclareLaunchArgument(
@@ -235,6 +234,19 @@ def generate_launch_description():
                 'head_1_p_gain': LaunchConfiguration('head_1_p_gain'),
                 'head_1_i_gain': LaunchConfiguration('head_1_i_gain'),
                 'head_1_d_gain': LaunchConfiguration('head_1_d_gain'),
+            }],
+        ),
+
+        # ── home pose 노드 (일회성) ───────────────────────────────────────────────
+        Node(
+            package='rby1',
+            executable='control_home_pose_node',
+            name='control_home_pose_node',
+            output='screen',
+            parameters=[{
+                'robot_ip':      LaunchConfiguration('robot_ip'),
+                'model':         LaunchConfiguration('model'),
+                'minimum_time':  10.0,
             }],
         ),
 

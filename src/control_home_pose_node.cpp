@@ -9,15 +9,15 @@
 #include <rby1-sdk/robot_command_builder.h>
 
 // ─────────────────────────────────────────────────────────────────────────────
-// run_zero_pose
+// run_home_pose
 //
-// 이미 실행 중인 hardware_node와 공존하여 zero pose 커맨드를 전송하고 종료한다.
+// 이미 실행 중인 hardware_node와 공존하여 home pose 커맨드를 전송하고 종료한다.
 // ─────────────────────────────────────────────────────────────────────────────
 template <typename ModelT>
-int run_zero_pose(const std::string& address, double minimum_time) {
+int run_home_pose(const std::string& address, double minimum_time) {
   using RobotT = rb::Robot<ModelT>;
 
-  auto logger = rclcpp::get_logger("zero_pose_node");
+  auto logger = rclcpp::get_logger("home_pose_node");
 
   auto robot = RobotT::Create(address);
 
@@ -52,17 +52,25 @@ int run_zero_pose(const std::string& address, double minimum_time) {
   }
   RCLCPP_INFO(logger, "Control manager ready");
 
-  // ── Zero pose 커맨드 빌드 ────────────────────────────────────────────────────
+  // ── Home pose 커맨드 빌드 ────────────────────────────────────────────────────
   // 모델별 자유도: ModelT::kTorsoIdx.size(), kRightArmIdx.size(), kLeftArmIdx.size()
   constexpr size_t torso_dof     = ModelT::kTorsoIdx.size();
   constexpr size_t right_arm_dof = ModelT::kRightArmIdx.size();
   constexpr size_t left_arm_dof  = ModelT::kLeftArmIdx.size();
 
-  Eigen::VectorXd q_torso     = Eigen::VectorXd::Zero(torso_dof);
-  Eigen::VectorXd q_right_arm = Eigen::VectorXd::Zero(right_arm_dof);
-  Eigen::VectorXd q_left_arm  = Eigen::VectorXd::Zero(left_arm_dof);
+  // torso: [0, π/4, -π/2, π/4, 0, 0]
+  Eigen::VectorXd q_torso(torso_dof);
+  q_torso << 0.0, 0.7854, -1.5708, 0.7854, 0.0, 0.0;
 
-  RCLCPP_INFO(logger, "Moving to zero pose (minimum_time=%.1fs) ...", minimum_time);
+  // right arm: [0, -0.0873, 0, -2.0944, 0, 1.2217, 0]
+  Eigen::VectorXd q_right_arm(right_arm_dof);
+  q_right_arm << 0.0, -0.0873, 0.0, -2.0944, 0.0, 1.2217, 0.0;
+
+  // left arm: [0, 0.0873, 0, -2.0944, 0, 1.2217, 0]
+  Eigen::VectorXd q_left_arm(left_arm_dof);
+  q_left_arm << 0.0, 0.0873, 0.0, -2.0944, 0.0, 1.2217, 0.0;
+
+  RCLCPP_INFO(logger, "Moving to home pose (minimum_time=%.1fs) ...", minimum_time);
 
   auto rv = robot->SendCommand(
     rb::RobotCommandBuilder().SetCommand(
@@ -85,12 +93,12 @@ int run_zero_pose(const std::string& address, double minimum_time) {
   )->Get();
 
   if (rv.finish_code() != rb::RobotCommandFeedback::FinishCode::kOk) {
-    RCLCPP_ERROR(logger, "Zero pose command failed (finish_code=%d)",
+    RCLCPP_ERROR(logger, "Home pose command failed (finish_code=%d)",
                  static_cast<int>(rv.finish_code()));
     return 1;
   }
 
-  RCLCPP_INFO(logger, "Zero pose reached successfully");
+  RCLCPP_INFO(logger, "Home pose reached successfully");
   robot->StopStateUpdate();
   return 0;
 }
@@ -101,7 +109,7 @@ int run_zero_pose(const std::string& address, double minimum_time) {
 int main(int argc, char** argv) {
   rclcpp::init(argc, argv);
 
-  auto param_node = rclcpp::Node::make_shared("control_zero_pose_node_param_reader");
+  auto param_node = rclcpp::Node::make_shared("control_home_pose_node_param_reader");
   param_node->declare_parameter<std::string>("robot_ip", "192.168.3.25:50051");
   param_node->declare_parameter<std::string>("model", "a");
   param_node->declare_parameter<double>("minimum_time", 10.0);
@@ -112,11 +120,11 @@ int main(int argc, char** argv) {
 
   int ret = 0;
   if (model == "a") {
-    ret = run_zero_pose<rb::y1_model::A>(address, minimum_time);
+    ret = run_home_pose<rb::y1_model::A>(address, minimum_time);
   } else if (model == "m") {
-    ret = run_zero_pose<rb::y1_model::M>(address, minimum_time);
+    ret = run_home_pose<rb::y1_model::M>(address, minimum_time);
   } else if (model == "ub") {
-    ret = run_zero_pose<rb::y1_model::UB>(address, minimum_time);
+    ret = run_home_pose<rb::y1_model::UB>(address, minimum_time);
   } else {
     RCLCPP_FATAL(param_node->get_logger(),
                  "Unknown model: '%s'. Use 'a', 'm', or 'ub'.", model.c_str());
