@@ -219,6 +219,20 @@ def generate_launch_description():
             }],
         ),
 
+
+        # ── home pose 노드 (일회성) ───────────────────────────────────────────────
+        Node(
+            package='rby1',
+            executable='control_home_pose_node',
+            name='control_home_pose_node',
+            output='screen',
+            parameters=[{
+                'robot_ip':      LaunchConfiguration('robot_ip'),
+                'model':         LaunchConfiguration('model'),
+                'minimum_time':  10.0,
+            }],
+        ),
+
         # ── head gain 노드 (조건부, 일회성) ──────────────────────────────────────
         Node(
             package='rby1',
@@ -234,19 +248,6 @@ def generate_launch_description():
                 'head_1_p_gain': LaunchConfiguration('head_1_p_gain'),
                 'head_1_i_gain': LaunchConfiguration('head_1_i_gain'),
                 'head_1_d_gain': LaunchConfiguration('head_1_d_gain'),
-            }],
-        ),
-
-        # ── home pose 노드 (일회성) ───────────────────────────────────────────────
-        Node(
-            package='rby1',
-            executable='control_home_pose_node',
-            name='control_home_pose_node',
-            output='screen',
-            parameters=[{
-                'robot_ip':      LaunchConfiguration('robot_ip'),
-                'model':         LaunchConfiguration('model'),
-                'minimum_time':  10.0,
             }],
         ),
 
