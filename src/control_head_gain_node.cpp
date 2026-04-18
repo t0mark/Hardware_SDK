@@ -1,5 +1,6 @@
+#include <chrono>
 #include <string>
-#include <vector>
+#include <thread>
 
 #include <rclcpp/rclcpp.hpp>
 
@@ -9,7 +10,7 @@
 // ─────────────────────────────────────────────────────────────────────────────
 // run_set_gains
 //
-// 파라미터로 지정된 PID 게인을 헤드 조인트에 적용하고 종료한다.
+// CM이 enabled 상태면 disable → 게인 설정 → re-enable 한다.
 //
 // Parameters:
 //   robot_ip      : gRPC 주소 (default: "192.168.3.25:50051")
@@ -39,58 +40,45 @@ int run_set_gains(
   }
   RCLCPP_INFO(logger, "Connected");
 
-  // ── 현재 게인 확인 (Control Manager 활성 시 읽기 불가 → 스킵) ───────────────
-  try {
-    const auto before = robot->GetHeadPositionPIDGains();
-    RCLCPP_INFO(logger, "Current head gains:");
-    for (size_t i = 0; i < before.size(); ++i) {
-      RCLCPP_INFO(logger, "  head_%zu  P=%-5u  I=%-5u  D=%u",
-        i, before[i].p_gain, before[i].i_gain, before[i].d_gain);
-    }
-  } catch (const std::exception& e) {
-    RCLCPP_WARN(logger, "Could not read current gains (skipping): %s", e.what());
-  }
+  // ── CM 상태 확인 → enabled이면 disable 후 Idle 대기 ───────────────────────
+  const auto cm_before = robot->GetControlManagerState();
+  const bool was_enabled = (cm_before.state == rb::ControlManagerState::State::kEnabled);
 
-  // ── Control Manager가 Enabled 상태면 Idle로 전환 (SET은 Idle 상태에서만 가능) ─
-  {
-    const auto& cm = robot->GetControlManagerState();
-    if (cm.state == rb::ControlManagerState::State::kEnabled) {
-      RCLCPP_INFO(logger, "Control Manager is Enabled → disabling before gain set");
-      if (!robot->DisableControlManager()) {
-        RCLCPP_WARN(logger, "DisableControlManager failed — gains may not apply");
+  if (was_enabled) {
+    RCLCPP_INFO(logger, "CM is enabled, disabling to set head gains ...");
+    robot->DisableControlManager();
+    for (int i = 0; i < 30; ++i) {
+      std::this_thread::sleep_for(std::chrono::milliseconds(100));
+      if (robot->GetControlManagerState().state != rb::ControlManagerState::State::kEnabled) break;
+      if (i == 29) {
+        RCLCPP_FATAL(logger, "CM did not reach Idle after 3s");
+        return 1;
       }
     }
+    RCLCPP_INFO(logger, "CM disabled");
   }
 
   // ── 게인 적용 ──────────────────────────────────────────────────────────────
-  RCLCPP_INFO(logger, "Applying new gains:");
-  RCLCPP_INFO(logger, "  head_0  P=%-5u  I=%-5u  D=%u", h0_p, h0_i, h0_d);
-  RCLCPP_INFO(logger, "  head_1  P=%-5u  I=%-5u  D=%u", h1_p, h1_i, h1_d);
+  RCLCPP_INFO(logger, "Applying gains: head_0 P=%-5u I=%-5u D=%u, head_1 P=%-5u I=%-5u D=%u",
+    h0_p, h0_i, h0_d, h1_p, h1_i, h1_d);
 
-  try {
-    if (!robot->SetPositionPIDGain("head_0", h0_p, h0_i, h0_d)) {
-      RCLCPP_ERROR(logger, "Failed to set gain for head_0");
-      return 1;
-    }
-    if (!robot->SetPositionPIDGain("head_1", h1_p, h1_i, h1_d)) {
-      RCLCPP_ERROR(logger, "Failed to set gain for head_1");
-      return 1;
-    }
-  } catch (const std::exception& e) {
-    RCLCPP_ERROR(logger, "Exception while setting gains: %s", e.what());
+  if (!robot->SetPositionPIDGain("head_0", h0_p, h0_i, h0_d)) {
+    RCLCPP_ERROR(logger, "Failed to set gain for head_0");
     return 1;
   }
+  if (!robot->SetPositionPIDGain("head_1", h1_p, h1_i, h1_d)) {
+    RCLCPP_ERROR(logger, "Failed to set gain for head_1");
+    return 1;
+  }
+  std::this_thread::sleep_for(std::chrono::milliseconds(50));
 
-  // ── 적용 후 확인 (Control Manager 활성 시 읽기 불가 → 스킵) ─────────────────
-  try {
-    const auto after = robot->GetHeadPositionPIDGains();
-    RCLCPP_INFO(logger, "Verified head gains:");
-    for (size_t i = 0; i < after.size(); ++i) {
-      RCLCPP_INFO(logger, "  head_%zu  P=%-5u  I=%-5u  D=%u",
-        i, after[i].p_gain, after[i].i_gain, after[i].d_gain);
+  // ── CM re-enable ──────────────────────────────────────────────────────────
+  if (was_enabled) {
+    if (!robot->EnableControlManager(true /* unlimited_mode */)) {
+      RCLCPP_FATAL(logger, "Failed to re-enable control manager");
+      return 1;
     }
-  } catch (const std::exception& e) {
-    RCLCPP_WARN(logger, "Could not verify gains (skipping): %s", e.what());
+    RCLCPP_INFO(logger, "Control manager re-enabled");
   }
 
   RCLCPP_INFO(logger, "Done");

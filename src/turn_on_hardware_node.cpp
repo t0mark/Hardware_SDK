@@ -20,7 +20,7 @@ class RBY1HardwareNode : public rclcpp::Node {
 
  public:
   explicit RBY1HardwareNode(const std::string& address, double rate)
-      : Node("init_hardware_node"), address_(address), rate_(rate) {
+      : Node("turn_on_hardware_node"), address_(address), rate_(rate) {
     joint_state_pub_ =
         create_publisher<sensor_msgs::msg::JointState>("/joint_states", 10);
 
@@ -45,12 +45,6 @@ class RBY1HardwareNode : public rclcpp::Node {
     }
     RCLCPP_INFO(get_logger(), "Connected");
 
-    // SDK 예제(demo_motion.cpp)와 동일한 순서:
-    // StartStateUpdate → sleep → power → servo → fault reset → enable
-
-    robot_->StartStateUpdate(
-        [this](const StateT& state) { state_callback(state); }, rate_);
-
     std::this_thread::sleep_for(std::chrono::seconds(1));
 
     // 전원
@@ -73,8 +67,29 @@ class RBY1HardwareNode : public rclcpp::Node {
     }
     RCLCPP_INFO(get_logger(), "Servo on");
 
+    // Head gain 설정 (자유로운 움직임용, CM이 Idle 상태일 때만 가능)
+    {
+      const auto cm = robot_->GetControlManagerState();
+      if (cm.state == rb::ControlManagerState::State::kEnabled) {
+        RCLCPP_INFO(get_logger(), "CM already enabled, disabling to set head gains ...");
+        robot_->DisableControlManager();
+        for (int i = 0; i < 20; ++i) {
+          std::this_thread::sleep_for(std::chrono::milliseconds(100));
+          if (robot_->GetControlManagerState().state != rb::ControlManagerState::State::kEnabled) break;
+        }
+      }
+    }
+    try {
+      robot_->SetPositionPIDGain("head_0", 800, 0, 4000);
+      robot_->SetPositionPIDGain("head_1", 800, 0, 4000);
+      std::this_thread::sleep_for(std::chrono::milliseconds(50));
+      RCLCPP_INFO(get_logger(), "Head gains set (P=800 I=0 D=4000)");
+    } catch (const std::exception& e) {
+      RCLCPP_WARN(get_logger(), "Could not set head gains (CM busy): %s. Using previous session gains.", e.what());
+    }
+
     // Control manager: fault이면 reset 후 enable
-    const auto& cm = robot_->GetControlManagerState();
+    const auto cm = robot_->GetControlManagerState();
     if (cm.state == rb::ControlManagerState::State::kMajorFault ||
         cm.state == rb::ControlManagerState::State::kMinorFault) {
       RCLCPP_WARN(get_logger(), "Control manager fault (%s), resetting ...",
@@ -85,11 +100,15 @@ class RBY1HardwareNode : public rclcpp::Node {
       }
     }
 
-    if (!robot_->EnableControlManager()) {
+    if (!robot_->EnableControlManager(true /* unlimited_mode */)) {
       RCLCPP_FATAL(get_logger(), "Failed to enable control manager");
       throw std::runtime_error("Failed to enable control manager");
     }
     RCLCPP_INFO(get_logger(), "Control manager enabled. Robot ready.");
+
+    // 초기화 완료 후 joint state 발행 시작
+    robot_->StartStateUpdate(
+        [this](const StateT& state) { state_callback(state); }, rate_);
   }
 
   // ── State 콜백 ───────────────────────────────────────────────────────────────
@@ -125,9 +144,7 @@ class RBY1HardwareNode : public rclcpp::Node {
 int main(int argc, char** argv) {
   rclcpp::init(argc, argv);
 
-  // 파라미터는 rclcpp::Node 생성 전에 node options로 오버라이드 가능하나,
-  // 여기서는 간단히 임시 노드로 읽는다.
-  auto param_node = rclcpp::Node::make_shared("init_hardware_node_param_reader");
+  auto param_node = rclcpp::Node::make_shared("turn_on_hardware_node_param_reader");
   param_node->declare_parameter<std::string>("robot_address", "192.168.30.1:50051");
   param_node->declare_parameter<std::string>("model", "a");
   param_node->declare_parameter<double>("rate", 50.0);

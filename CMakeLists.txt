@@ -10,10 +10,10 @@ find_package(control_msgs REQUIRED)
 find_package(rby1-sdk REQUIRED)
 find_package(CURL REQUIRED)
 find_package(tf2_ros REQUIRED)
-# ── init_hardware_node (C++) ──────────────────────────────────────────────────
-add_executable(init_hardware_node src/init_hardware_node.cpp)
-ament_target_dependencies(init_hardware_node rclcpp sensor_msgs)
-target_link_libraries(init_hardware_node rby1-sdk::rby1-sdk)
+# ── turn_on_hardware_node (C++) ───────────────────────────────────────────────
+add_executable(turn_on_hardware_node src/turn_on_hardware_node.cpp)
+ament_target_dependencies(turn_on_hardware_node rclcpp sensor_msgs)
+target_link_libraries(turn_on_hardware_node rby1-sdk::rby1-sdk)
 
 # ── control_cmd_vel_node (C++) ────────────────────────────────────────────────
 add_executable(control_cmd_vel_node src/control_cmd_vel_node.cpp)
@@ -62,7 +62,7 @@ ament_target_dependencies(control_head_gain_node rclcpp)
 target_link_libraries(control_head_gain_node rby1-sdk::rby1-sdk)
 
 install(
-  TARGETS init_hardware_node control_cmd_vel_node control_moveit_node control_joint_node
+  TARGETS turn_on_hardware_node control_cmd_vel_node control_moveit_node control_joint_node
           lidar_node lidar_merge_node
           control_zero_pose_node control_home_pose_node turn_off_hardware_node control_head_gain_node
   DESTINATION lib/${PROJECT_NAME}

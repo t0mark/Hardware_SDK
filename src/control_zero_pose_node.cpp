@@ -32,23 +32,17 @@ int run_zero_pose(const std::string& address, double minimum_time) {
   robot->StartStateUpdate([](const auto&) {}, 10.0 /* Hz */);
   std::this_thread::sleep_for(std::chrono::seconds(1));
 
-  // ── Control manager 상태 확인 ───────────────────────────────────────────────
-  const auto& cm = robot->GetControlManagerState();
-  if (cm.state == rb::ControlManagerState::State::kMajorFault ||
-      cm.state == rb::ControlManagerState::State::kMinorFault) {
-    RCLCPP_WARN(logger, "Control manager fault, resetting ...");
-    if (!robot->ResetFaultControlManager()) {
-      RCLCPP_FATAL(logger, "Failed to reset control manager fault");
+  // ── Control manager 준비 대기 (turn_on_hardware_node가 enable할 때까지 폴링) ──
+  constexpr int kMaxRetries = 30;
+  for (int i = 0; i < kMaxRetries; ++i) {
+    const auto& cm = robot->GetControlManagerState();
+    if (cm.state == rb::ControlManagerState::State::kEnabled) break;
+    if (i == kMaxRetries - 1) {
+      RCLCPP_FATAL(logger, "Control manager not enabled after %d retries", kMaxRetries);
       return 1;
     }
-  }
-
-  if (cm.state != rb::ControlManagerState::State::kEnabled) {
-    RCLCPP_INFO(logger, "Enabling control manager ...");
-    if (!robot->EnableControlManager()) {
-      RCLCPP_FATAL(logger, "Failed to enable control manager");
-      return 1;
-    }
+    RCLCPP_INFO(logger, "Waiting for control manager to be enabled (%d/%d) ...", i + 1, kMaxRetries);
+    std::this_thread::sleep_for(std::chrono::seconds(1));
   }
   RCLCPP_INFO(logger, "Control manager ready");
 

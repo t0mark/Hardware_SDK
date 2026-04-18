@@ -5,8 +5,9 @@ from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
 from launch.actions import (DeclareLaunchArgument, GroupAction,
                              IncludeLaunchDescription, OpaqueFunction,
-                             SetLaunchConfiguration)
+                             RegisterEventHandler, SetLaunchConfiguration)
 from launch.conditions import IfCondition
+from launch.event_handlers import OnProcessExit
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import Command, LaunchConfiguration, PathJoinSubstitution
 from launch_ros.actions import Node
@@ -33,8 +34,8 @@ def generate_launch_description():
     with open(jlim_file, 'r') as f:
         joint_limits = yaml.safe_load(f)
 
-    # ── 모드별 노드 구성 (OpaqueFunction으로 런타임 if문 사용) ────────────────
-    def launch_setup(context, *args, **kwargs):
+    # ── 모드별 노드 구성 (head_gain 완료 후 OnProcessExit으로 기동) ───────────
+    def launch_control_nodes(context, *args, **kwargs):
         mode  = context.launch_configurations['control_mode']
         ip    = context.launch_configurations['robot_ip']
         model = context.launch_configurations['model']
@@ -130,6 +131,51 @@ def generate_launch_description():
 
         return nodes
 
+    # ── home_pose 완료 후 head_gain → control_nodes 순서로 실행 ──────────────
+    def launch_head_gain_then_control(context, *args, **kwargs):
+        ip    = context.launch_configurations['robot_ip']
+        model = context.launch_configurations['model']
+
+        head_gain_node = Node(
+            package='rby1',
+            executable='control_head_gain_node',
+            name='control_head_gain_node',
+            output='screen',
+            parameters=[{
+                'robot_ip':      ip,
+                'model':         model,
+                'head_0_p_gain': 200,
+                'head_0_i_gain': 0,
+                'head_0_d_gain': 8000,
+                'head_1_p_gain': 200,
+                'head_1_i_gain': 0,
+                'head_1_d_gain': 8000,
+            }],
+        )
+
+        return [
+            head_gain_node,
+            RegisterEventHandler(
+                OnProcessExit(
+                    target_action=head_gain_node,
+                    on_exit=[OpaqueFunction(function=launch_control_nodes)],
+                )
+            ),
+        ]
+
+    # ── 순차 실행용 노드 객체 (RegisterEventHandler에서 참조) ─────────────────
+    home_pose_node = Node(
+        package='rby1',
+        executable='control_home_pose_node',
+        name='control_home_pose_node',
+        output='screen',
+        parameters=[{
+            'robot_ip':     LaunchConfiguration('robot_ip'),
+            'model':        LaunchConfiguration('model'),
+            'minimum_time': 10.0,
+        }],
+    )
+
     return LaunchDescription([
         # ── 런치 인자 ─────────────────────────────────────────────────────────
         DeclareLaunchArgument(
@@ -170,24 +216,6 @@ def generate_launch_description():
             default_value='false',
             description='Launch dual Lakibeam LiDAR nodes (lidar.launch.py)',
         ),
-        DeclareLaunchArgument(
-            'head_0_p_gain', default_value='200', description='head_0 P gain',
-        ),
-        DeclareLaunchArgument(
-            'head_0_i_gain', default_value='0', description='head_0 I gain',
-        ),
-        DeclareLaunchArgument(
-            'head_0_d_gain', default_value='8000', description='head_0 D gain',
-        ),
-        DeclareLaunchArgument(
-            'head_1_p_gain', default_value='200', description='head_1 P gain',
-        ),
-        DeclareLaunchArgument(
-            'head_1_i_gain', default_value='0', description='head_1 I gain',
-        ),
-        DeclareLaunchArgument(
-            'head_1_d_gain', default_value='8000', description='head_1 D gain',
-        ),
 
         # ── description (robot_state_publisher) ───────────────────────────────
         GroupAction(
@@ -206,11 +234,11 @@ def generate_launch_description():
             ],
         ),
 
-        # ── hardware_node ─────────────────────────────────────────────────────
+        # ── 상시 실행 노드들 ──────────────────────────────────────────────────
         Node(
             package='rby1',
-            executable='init_hardware_node',
-            name='init_hardware_node',
+            executable='turn_on_hardware_node',
+            name='turn_on_hardware_node',
             output='screen',
             parameters=[{
                 'robot_address': LaunchConfiguration('robot_ip'),
@@ -219,51 +247,6 @@ def generate_launch_description():
             }],
         ),
 
-
-        # ── home pose 노드 (일회성) ───────────────────────────────────────────────
-        Node(
-            package='rby1',
-            executable='control_home_pose_node',
-            name='control_home_pose_node',
-            output='screen',
-            parameters=[{
-                'robot_ip':      LaunchConfiguration('robot_ip'),
-                'model':         LaunchConfiguration('model'),
-                'minimum_time':  10.0,
-            }],
-        ),
-
-        # ── head gain 노드 (조건부, 일회성) ──────────────────────────────────────
-        Node(
-            package='rby1',
-            executable='control_head_gain_node',
-            name='control_head_gain_node',
-            output='screen',
-            parameters=[{
-                'robot_ip':    LaunchConfiguration('robot_ip'),
-                'model':       LaunchConfiguration('model'),
-                'head_0_p_gain': LaunchConfiguration('head_0_p_gain'),
-                'head_0_i_gain': LaunchConfiguration('head_0_i_gain'),
-                'head_0_d_gain': LaunchConfiguration('head_0_d_gain'),
-                'head_1_p_gain': LaunchConfiguration('head_1_p_gain'),
-                'head_1_i_gain': LaunchConfiguration('head_1_i_gain'),
-                'head_1_d_gain': LaunchConfiguration('head_1_d_gain'),
-            }],
-        ),
-
-        # ── LiDAR 노드 (조건부) ───────────────────────────────────────────────
-        GroupAction(
-            condition=IfCondition(LaunchConfiguration('use_lidar')),
-            actions=[
-                IncludeLaunchDescription(
-                    PythonLaunchDescriptionSource([
-                        PathJoinSubstitution([pkg_share, 'launch', 'lidar.launch.py'])
-                    ]),
-                ),
-            ],
-        ),
-
-        # ── world → base_link static TF (MoveIt 필수) ────────────────────────
         Node(
             package='tf2_ros',
             executable='static_transform_publisher',
@@ -271,7 +254,6 @@ def generate_launch_description():
             arguments=['0', '0', '0', '0', '0', '0', 'world', 'base_link'],
         ),
 
-        # ── RViz2 ─────────────────────────────────────────────────────────────
         Node(
             package='rviz2',
             executable='rviz2',
@@ -285,6 +267,24 @@ def generate_launch_description():
             ],
         ),
 
-        # ── 모드별 노드 (control_mode에 따라 동적 구성) ───────────────────────
-        OpaqueFunction(function=launch_setup),
+        GroupAction(
+            condition=IfCondition(LaunchConfiguration('use_lidar')),
+            actions=[
+                IncludeLaunchDescription(
+                    PythonLaunchDescriptionSource([
+                        PathJoinSubstitution([pkg_share, 'launch', 'lidar.launch.py'])
+                    ]),
+                ),
+            ],
+        ),
+
+        # ── 순차 초기화: home_pose → head_gain (고정 게인) → control 노드들 ────
+        home_pose_node,
+
+        RegisterEventHandler(
+            OnProcessExit(
+                target_action=home_pose_node,
+                on_exit=[OpaqueFunction(function=launch_head_gain_then_control)],
+            )
+        ),
     ])

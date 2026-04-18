@@ -32,31 +32,25 @@ int run_home_pose(const std::string& address, double minimum_time) {
   robot->StartStateUpdate([](const auto&) {}, 10.0 /* Hz */);
   std::this_thread::sleep_for(std::chrono::seconds(1));
 
-  // ── Control manager 상태 확인 ───────────────────────────────────────────────
-  const auto& cm = robot->GetControlManagerState();
-  if (cm.state == rb::ControlManagerState::State::kMajorFault ||
-      cm.state == rb::ControlManagerState::State::kMinorFault) {
-    RCLCPP_WARN(logger, "Control manager fault, resetting ...");
-    if (!robot->ResetFaultControlManager()) {
-      RCLCPP_FATAL(logger, "Failed to reset control manager fault");
+  // ── Control manager 준비 대기 (turn_on_hardware_node가 enable할 때까지 폴링) ──
+  constexpr int kMaxRetries = 30;
+  for (int i = 0; i < kMaxRetries; ++i) {
+    const auto& cm = robot->GetControlManagerState();
+    if (cm.state == rb::ControlManagerState::State::kEnabled) break;
+    if (i == kMaxRetries - 1) {
+      RCLCPP_FATAL(logger, "Control manager not enabled after %d retries", kMaxRetries);
       return 1;
     }
-  }
-
-  if (cm.state != rb::ControlManagerState::State::kEnabled) {
-    RCLCPP_INFO(logger, "Enabling control manager ...");
-    if (!robot->EnableControlManager()) {
-      RCLCPP_FATAL(logger, "Failed to enable control manager");
-      return 1;
-    }
+    RCLCPP_INFO(logger, "Waiting for control manager to be enabled (%d/%d) ...", i + 1, kMaxRetries);
+    std::this_thread::sleep_for(std::chrono::seconds(1));
   }
   RCLCPP_INFO(logger, "Control manager ready");
 
   // ── Home pose 커맨드 빌드 ────────────────────────────────────────────────────
-  // 모델별 자유도: ModelT::kTorsoIdx.size(), kRightArmIdx.size(), kLeftArmIdx.size()
   constexpr size_t torso_dof     = ModelT::kTorsoIdx.size();
   constexpr size_t right_arm_dof = ModelT::kRightArmIdx.size();
   constexpr size_t left_arm_dof  = ModelT::kLeftArmIdx.size();
+  constexpr size_t head_dof      = ModelT::kHeadIdx.size();
 
   // torso: [0, π/4, -π/2, π/4, 0, 0]
   Eigen::VectorXd q_torso(torso_dof);
@@ -70,25 +64,33 @@ int run_home_pose(const std::string& address, double minimum_time) {
   Eigen::VectorXd q_left_arm(left_arm_dof);
   q_left_arm << 0.0, 0.0873, 0.0, -2.0944, 0.0, 1.2217, 0.0;
 
+  // head: [0, 0]
+  Eigen::VectorXd q_head = Eigen::VectorXd::Zero(head_dof);
+
   RCLCPP_INFO(logger, "Moving to home pose (minimum_time=%.1fs) ...", minimum_time);
 
   auto rv = robot->SendCommand(
     rb::RobotCommandBuilder().SetCommand(
-      rb::ComponentBasedCommandBuilder().SetBodyCommand(
-        rb::BodyComponentBasedCommandBuilder()
-          .SetTorsoCommand(
+      rb::ComponentBasedCommandBuilder()
+        .SetBodyCommand(
+          rb::BodyComponentBasedCommandBuilder()
+            .SetTorsoCommand(
+              rb::JointPositionCommandBuilder()
+                .SetMinimumTime(minimum_time)
+                .SetPosition(q_torso))
+            .SetRightArmCommand(
+              rb::JointPositionCommandBuilder()
+                .SetMinimumTime(minimum_time)
+                .SetPosition(q_right_arm))
+            .SetLeftArmCommand(
+              rb::JointPositionCommandBuilder()
+                .SetMinimumTime(minimum_time)
+                .SetPosition(q_left_arm)))
+        .SetHeadCommand(
+          rb::HeadCommandBuilder().SetCommand(
             rb::JointPositionCommandBuilder()
               .SetMinimumTime(minimum_time)
-              .SetPosition(q_torso))
-          .SetRightArmCommand(
-            rb::JointPositionCommandBuilder()
-              .SetMinimumTime(minimum_time)
-              .SetPosition(q_right_arm))
-          .SetLeftArmCommand(
-            rb::JointPositionCommandBuilder()
-              .SetMinimumTime(minimum_time)
-              .SetPosition(q_left_arm))
-      )
+              .SetPosition(q_head)))
     )
   )->Get();
 
