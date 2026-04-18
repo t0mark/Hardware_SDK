@@ -62,7 +62,7 @@ RUN cmake --build . && make install
 
 # 5. ROS SDK 구축
 RUN mkdir -p /workspace/ros_ws/src && \
-    git clone -b plat/custom-rby1 https://github.com/t0mark/hardware-sdk /workspace/ros_ws/src/hardware-sdk
+    git clone -b plat/custom-rby1 https://github.com/t0mark/hardware-sdk /workspace/ros_ws/src/hardware-sdk rby1
 
 # colcon build 수행
 WORKDIR /workspace/ros_ws
