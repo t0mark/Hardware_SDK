@@ -16,7 +16,7 @@ services:
     volumes:
       - /dev:/dev
       - /tmp/.X11-unix:/tmp/.X11-unix
-      - ~/Desktop/rby1:/workspace/
+      # - ~/Desktop/rby1:/workspace/
     working_dir: /workspace
     stdin_open: true
     tty: true
