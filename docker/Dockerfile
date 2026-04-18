@@ -14,9 +14,6 @@ RUN apt-get update && apt-get install -y \
     git \
     && rm -rf /var/lib/apt/lists/*
 
-# Source ROS2 humble setup
-RUN echo "source /opt/ros/humble/setup.bash" >> ~/.bashrc
-
 # Install conan
 RUN pip install conan
 
@@ -53,3 +50,7 @@ RUN apt-get update && apt-get install -y \
     ros-humble-moveit-ros-visualization \
     ros-humble-control-msgs \
     && rm -rf /var/lib/apt/lists/*
+
+# Source ROS2 humble setup
+RUN echo "source /opt/ros/humble/setup.bash" >> ~/.bashrc
+RUN echo "source /workspace/ros_ws/install/setup.bash" >> ~/.bashrc
