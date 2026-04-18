@@ -23,7 +23,7 @@ RUN apt-get update && apt-get upgrade -y && apt-get install -y \
     ros-humble-moveit-ros-move-group \
     ros-humble-moveit-ros-visualization \
     ros-humble-moveit-simple-controller-manager \
-    ros-humble-kdl-kinematics-plugin \
+    ros-humble-moveit-kinematics \
     libcurl4-openssl-dev \
     python3-pip \
     curl \
