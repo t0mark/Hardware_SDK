@@ -264,13 +264,13 @@ int main(int argc, char** argv) {
   rclcpp::init(argc, argv);
 
   auto param_node = rclcpp::Node::make_shared("control_joint_node_param_reader");
-  param_node->declare_parameter<std::string>("robot_address", "192.168.12.1:50051");
+  param_node->declare_parameter<std::string>("robot_ip", "rby1.local:50051");
   param_node->declare_parameter<std::string>("model", "a");
   param_node->declare_parameter<double>("control_hz", 50.0);
   param_node->declare_parameter<double>("cmd_timeout", 0.5);
   param_node->declare_parameter<bool>("control_base", false);
 
-  const auto address      = param_node->get_parameter("robot_address").as_string();
+  const auto address      = param_node->get_parameter("robot_ip").as_string();
   const auto model        = param_node->get_parameter("model").as_string();
   const auto control_hz   = param_node->get_parameter("control_hz").as_double();
   const auto cmd_timeout  = param_node->get_parameter("cmd_timeout").as_double();

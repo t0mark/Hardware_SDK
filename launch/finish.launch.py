@@ -10,7 +10,7 @@ def generate_launch_description():
     # ── 런치 인자 ──────────────────────────────────────────────────────────────
     declare_robot_ip = DeclareLaunchArgument(
         'robot_ip',
-        default_value='192.168.3.25:50051',
+        default_value='rby1.local:50051',
         description='Robot gRPC address (host:port)',
     )
     declare_model = DeclareLaunchArgument(

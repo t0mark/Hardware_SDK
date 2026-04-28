@@ -13,7 +13,7 @@
 // CM이 enabled 상태면 disable → 게인 설정 → re-enable 한다.
 //
 // Parameters:
-//   robot_ip      : gRPC 주소 (default: "192.168.3.25:50051")
+//   robot_ip      : gRPC 주소 (default: "rby1.local:50051")
 //   model         : 로봇 모델 ("a" / "m" / "ub", default: "a")
 //   head_0_p_gain : head_0 P 게인 (default: 200)
 //   head_0_i_gain : head_0 I 게인 (default: 0)
@@ -93,7 +93,7 @@ int main(int argc, char** argv)
   rclcpp::init(argc, argv);
 
   auto param_node = rclcpp::Node::make_shared("control_head_gain_node_param_reader");
-  param_node->declare_parameter<std::string>("robot_ip", "192.168.3.25:50051");
+  param_node->declare_parameter<std::string>("robot_ip", "rby1.local:50051");
   param_node->declare_parameter<std::string>("model",    "a");
 
   param_node->declare_parameter<int>("head_0_p_gain", 200);

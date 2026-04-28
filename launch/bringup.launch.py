@@ -52,8 +52,8 @@ def generate_launch_description():
                 name='control_cmd_vel_node',
                 output='screen',
                 parameters=[{
-                    'robot_address': ip,
-                    'model':         model,
+                    'robot_ip': ip,
+                    'model':    model,
                 }],
             ))
 
@@ -65,7 +65,7 @@ def generate_launch_description():
                 name='control_moveit_node',
                 output='screen',
                 parameters=[{
-                    'robot_address': ip,
+                    'robot_ip': ip,
                 }],
             ))
 
@@ -122,10 +122,10 @@ def generate_launch_description():
                 name='control_joint_node',
                 output='screen',
                 parameters=[{
-                    'robot_address': ip,
-                    'model':         model,
-                    'control_base':  mode == 'low',
-                    'cmd_timeout':   0.5,
+                    'robot_ip':     ip,
+                    'model':        model,
+                    'control_base': mode == 'low',
+                    'cmd_timeout':  0.5,
                 }],
             ))
 
@@ -186,7 +186,7 @@ def generate_launch_description():
         ),
         DeclareLaunchArgument(
             'robot_ip',
-            default_value='192.168.3.25:50051',
+            default_value='rby1.local:50051',
             description='Robot gRPC address (host:port)',
         ),
         DeclareLaunchArgument(
@@ -241,9 +241,9 @@ def generate_launch_description():
             name='turn_on_hardware_node',
             output='screen',
             parameters=[{
-                'robot_address': LaunchConfiguration('robot_ip'),
-                'model':         LaunchConfiguration('model'),
-                'rate':          LaunchConfiguration('rate'),
+                'robot_ip': LaunchConfiguration('robot_ip'),
+                'model':    LaunchConfiguration('model'),
+                'rate':     LaunchConfiguration('rate'),
             }],
         ),
 
