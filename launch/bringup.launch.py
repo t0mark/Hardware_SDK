@@ -180,7 +180,7 @@ def generate_launch_description():
         # ── 런치 인자 ─────────────────────────────────────────────────────────
         DeclareLaunchArgument(
             'control_mode',
-            default_value='high',
+            default_value='medium',
             choices=['high', 'medium', 'low'],
             description='Control mode: high=MoveIt, medium=cmd_vel+direct joints, low=full direct',
         ),
@@ -208,13 +208,18 @@ def generate_launch_description():
         ),
         DeclareLaunchArgument(
             'rviz',
-            default_value='true',
+            default_value='false',
             description='Launch RViz',
         ),
         DeclareLaunchArgument(
             'use_lidar',
             default_value='false',
             description='Launch dual Lakibeam LiDAR nodes (lidar.launch.py)',
+        ),
+        DeclareLaunchArgument(
+            'use_camera',
+            default_value='false',
+            description='Launch ZED2i camera ROS image publisher (camera.launch.py)',
         ),
 
         # ── description (robot_state_publisher) ───────────────────────────────
@@ -273,6 +278,17 @@ def generate_launch_description():
                 IncludeLaunchDescription(
                     PythonLaunchDescriptionSource([
                         PathJoinSubstitution([pkg_share, 'launch', 'lidar.launch.py'])
+                    ]),
+                ),
+            ],
+        ),
+
+        GroupAction(
+            condition=IfCondition(LaunchConfiguration('use_camera')),
+            actions=[
+                IncludeLaunchDescription(
+                    PythonLaunchDescriptionSource([
+                        PathJoinSubstitution([pkg_share, 'launch', 'camera.launch.py'])
                     ]),
                 ),
             ],

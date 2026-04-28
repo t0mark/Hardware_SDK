@@ -9,6 +9,7 @@ find_package(geometry_msgs REQUIRED)
 find_package(control_msgs REQUIRED)
 find_package(rby1-sdk REQUIRED)
 find_package(CURL REQUIRED)
+find_package(OpenCV REQUIRED)
 # ── turn_on_hardware_node (C++) ───────────────────────────────────────────────
 add_executable(turn_on_hardware_node src/turn_on_hardware_node.cpp)
 ament_target_dependencies(turn_on_hardware_node rclcpp sensor_msgs)
@@ -36,6 +37,12 @@ target_include_directories(dual_lidar_node PRIVATE include)
 ament_target_dependencies(dual_lidar_node rclcpp sensor_msgs)
 target_link_libraries(dual_lidar_node curl)
 
+# ── camera_node (C++) ─────────────────────────────────────────────────────────
+add_executable(camera_node src/camera_node.cpp)
+target_include_directories(camera_node PRIVATE ${OpenCV_INCLUDE_DIRS})
+ament_target_dependencies(camera_node rclcpp sensor_msgs)
+target_link_libraries(camera_node ${OpenCV_LIBS})
+
 # ── control_zero_pose_node (C++) ──────────────────────────────────────────────
 add_executable(control_zero_pose_node src/control_zero_pose_node.cpp)
 ament_target_dependencies(control_zero_pose_node rclcpp)
@@ -58,7 +65,7 @@ target_link_libraries(control_head_gain_node rby1-sdk::rby1-sdk)
 
 install(
   TARGETS turn_on_hardware_node control_cmd_vel_node control_moveit_node control_joint_node
-          dual_lidar_node
+          dual_lidar_node camera_node
           control_zero_pose_node control_home_pose_node turn_off_hardware_node control_head_gain_node
   DESTINATION lib/${PROJECT_NAME}
 )

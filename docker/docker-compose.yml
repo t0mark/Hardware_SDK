@@ -1,22 +1,24 @@
 services:
   rby1:
     image: t0mark251/hardware-sdk:custom-rby1
+    build: .
     container_name: rby1
     privileged: true
     network_mode: host
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              count: all
-              capabilities: [gpu]
-    environment:
-      - DISPLAY=${DISPLAY}
+#    deploy:
+#      resources:
+#        reservations:
+#          devices:
+#            - driver: nvidia
+#              count: all
+#              capabilities: [gpu]
+#    environment:
+#      - DISPLAY=${DISPLAY}
     volumes:
       - /dev:/dev
-      - /tmp/.X11-unix:/tmp/.X11-unix
-      - ~/Desktop/rby1:/workspace/
+      - /root/rby1:/workspace/ros_ws/src/rby1
+#      - /tmp/.X11-unix:/tmp/.X11-unix
+#      - ~/Desktop/rby1:/workspace/
     working_dir: /workspace
     stdin_open: true
     tty: true
