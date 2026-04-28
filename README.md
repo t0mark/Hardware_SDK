@@ -88,3 +88,33 @@ ros2 launch rby1 finish.launch.py robot_ip:=192.168.3.25
 | `rate` | `50.0` | 관절 상태 퍼블리시 주기 [Hz] |
 | `rviz` | `true` | RViz 실행 여부 |
 | `use_lidar` | `false` | LiDAR 노드 실행 여부 |
+
+
+# RBY1 RPC 사용시
+- docker-compose.yml 수정
+```
+services:
+  rby1:
+    image: t0mark251/hardware-sdk:custom-rby1
+    build: .
+    container_name: rby1
+    privileged: true
+    network_mode: host
+#    deploy:
+#      resources:
+#        reservations:
+#          devices:
+#            - driver: nvidia
+#              count: all
+#              capabilities: [gpu]
+#    environment:
+#      - DISPLAY=${DISPLAY}
+    volumes:
+      - /dev:/dev
+      - /root/rby1:/workspace/ros_ws/src/rby1
+#      - /tmp/.X11-unix:/tmp/.X11-unix
+#      - ~/Desktop/rby1:/workspace/
+    working_dir: /workspace
+    stdin_open: true
+    tty: true
+```
