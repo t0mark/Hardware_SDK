@@ -52,8 +52,9 @@ def generate_launch_description():
                 name='control_cmd_vel_node',
                 output='screen',
                 parameters=[{
-                    'robot_ip': ip,
-                    'model':    model,
+                    'robot_ip':  ip,
+                    'model':     model,
+                    'avoidance': context.launch_configurations.get('avoidance', 'false').lower() == 'true',
                 }],
             ))
 
@@ -213,13 +214,18 @@ def generate_launch_description():
         ),
         DeclareLaunchArgument(
             'use_lidar',
-            default_value='false',
+            default_value='true',
             description='Launch dual Lakibeam LiDAR nodes (lidar.launch.py)',
         ),
         DeclareLaunchArgument(
             'use_camera',
-            default_value='false',
+            default_value='true',
             description='Launch ZED2i camera ROS image publisher (camera.launch.py)',
+        ),
+        DeclareLaunchArgument(
+            'avoidance',
+            default_value='true',
+            description='Enable LaserScan-based obstacle avoidance in cmd_vel node',
         ),
 
         # ── description (robot_state_publisher) ───────────────────────────────

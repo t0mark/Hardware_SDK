@@ -32,8 +32,10 @@ class RBY1WholebodyControlNode : public rclcpp::Node {
   using StreamT     = rb::RobotCommandStreamHandler<rb::y1_model::A>;
 
  public:
-  explicit RBY1WholebodyControlNode(const std::string& address)
-      : Node("control_moveit_node"), address_(address) {
+  RBY1WholebodyControlNode()
+      : Node("control_moveit_node") {
+    declare_parameter("robot_ip", "rby1.local:50051");
+    address_ = get_parameter("robot_ip").as_string();
     // /joint_states 구독 → hardware_node 준비 완료 감지 + 현재 관절 위치 유지
     joint_state_sub_ = create_subscription<sensor_msgs::msg::JointState>(
         "/joint_states", 10,
@@ -318,16 +320,10 @@ class RBY1WholebodyControlNode : public rclcpp::Node {
 int main(int argc, char** argv) {
   rclcpp::init(argc, argv);
 
-  auto param_node = rclcpp::Node::make_shared("control_moveit_node_param_reader");
-  param_node->declare_parameter<std::string>("robot_ip", "rby1.local:50051");
-
-  const auto address = param_node->get_parameter("robot_ip").as_string();
-
   try {
-    auto node = std::make_shared<RBY1WholebodyControlNode>(address);
-    rclcpp::spin(node);
+    rclcpp::spin(std::make_shared<RBY1WholebodyControlNode>());
   } catch (const std::exception& e) {
-    RCLCPP_FATAL(param_node->get_logger(),
+    RCLCPP_ERROR(rclcpp::get_logger("control_moveit_node"),
                  "Wholebody control node 오류: %s", e.what());
     return 1;
   }

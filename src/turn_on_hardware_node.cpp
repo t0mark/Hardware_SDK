@@ -19,8 +19,14 @@ class RBY1HardwareNode : public rclcpp::Node {
   using StateT = rb::RobotState<ModelT>;
 
  public:
-  explicit RBY1HardwareNode(const std::string& address, double rate)
-      : Node("turn_on_hardware_node"), address_(address), rate_(rate) {
+  RBY1HardwareNode()
+      : Node("turn_on_hardware_node") {
+    declare_parameter("robot_ip", "rby1.local:50051");
+    declare_parameter("rate",     50.0);
+
+    address_ = get_parameter("robot_ip").as_string();
+    rate_    = get_parameter("rate").as_double();
+
     joint_state_pub_ =
         create_publisher<sensor_msgs::msg::JointState>("/joint_states", 10);
 
@@ -144,31 +150,29 @@ class RBY1HardwareNode : public rclcpp::Node {
 int main(int argc, char** argv) {
   rclcpp::init(argc, argv);
 
-  auto param_node = rclcpp::Node::make_shared("turn_on_hardware_node_param_reader");
-  param_node->declare_parameter<std::string>("robot_ip", "rby1.local:50051");
-  param_node->declare_parameter<std::string>("model", "a");
-  param_node->declare_parameter<double>("rate", 50.0);
-
-  const auto address = param_node->get_parameter("robot_ip").as_string();
-  const auto model   = param_node->get_parameter("model").as_string();
-  const auto rate    = param_node->get_parameter("rate").as_double();
+  // 템플릿 분기에 필요한 model만 임시 노드로 읽고 즉시 소멸
+  std::string model;
+  {
+    auto tmp = rclcpp::Node::make_shared("turn_on_hardware_node_model_reader");
+    tmp->declare_parameter("model", "a");
+    model = tmp->get_parameter("model").as_string();
+  }
 
   try {
     if (model == "a") {
-      auto node = std::make_shared<RBY1HardwareNode<rb::y1_model::A>>(address, rate);
-      rclcpp::spin(node);
+      rclcpp::spin(std::make_shared<RBY1HardwareNode<rb::y1_model::A>>());
     } else if (model == "m") {
-      auto node = std::make_shared<RBY1HardwareNode<rb::y1_model::M>>(address, rate);
-      rclcpp::spin(node);
+      rclcpp::spin(std::make_shared<RBY1HardwareNode<rb::y1_model::M>>());
     } else if (model == "ub") {
-      auto node = std::make_shared<RBY1HardwareNode<rb::y1_model::UB>>(address, rate);
-      rclcpp::spin(node);
+      rclcpp::spin(std::make_shared<RBY1HardwareNode<rb::y1_model::UB>>());
     } else {
-      RCLCPP_FATAL(param_node->get_logger(), "Unknown model: '%s'. Use 'a', 'm', or 'ub'.", model.c_str());
+      RCLCPP_ERROR(rclcpp::get_logger("turn_on_hardware_node"),
+                   "Unknown model: '%s'. Use 'a', 'm', or 'ub'.", model.c_str());
       return 1;
     }
   } catch (const std::exception& e) {
-    RCLCPP_FATAL(param_node->get_logger(), "Hardware node error: %s", e.what());
+    RCLCPP_ERROR(rclcpp::get_logger("turn_on_hardware_node"),
+                 "Hardware node error: %s", e.what());
     return 1;
   }
 

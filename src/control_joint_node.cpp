@@ -32,15 +32,20 @@ class RBY1JointControlNode : public rclcpp::Node {
   static constexpr size_t kNWheels = ModelT::kMobilityIdx.size();
 
  public:
-  explicit RBY1JointControlNode(const std::string& address,
-                                 double control_hz,
-                                 double cmd_timeout,
-                                 bool   control_base)
-      : Node("control_joint_node"),
-        address_(address),
-        min_time_(1.0 / control_hz),
-        cmd_timeout_(cmd_timeout),
-        control_base_(control_base && (kNWheels > 0)) {
+  RBY1JointControlNode()
+      : Node("control_joint_node") {
+    declare_parameter("robot_ip",     "rby1.local:50051");
+    declare_parameter("control_hz",   50.0);
+    declare_parameter("cmd_timeout",  0.5);
+    declare_parameter("control_base", false);
+
+    address_ = get_parameter("robot_ip").as_string();
+    const double control_hz  = get_parameter("control_hz").as_double();
+    const bool   control_base = get_parameter("control_base").as_bool();
+    min_time_      = 1.0 / control_hz;
+    cmd_timeout_   = get_parameter("cmd_timeout").as_double();
+    control_base_  = control_base && (kNWheels > 0);
+
     if (control_base && kNWheels == 0) {
       RCLCPP_WARN(get_logger(),
                   "control_base=true but model has no wheels. Base control disabled.");
@@ -263,39 +268,29 @@ class RBY1JointControlNode : public rclcpp::Node {
 int main(int argc, char** argv) {
   rclcpp::init(argc, argv);
 
-  auto param_node = rclcpp::Node::make_shared("control_joint_node_param_reader");
-  param_node->declare_parameter<std::string>("robot_ip", "rby1.local:50051");
-  param_node->declare_parameter<std::string>("model", "a");
-  param_node->declare_parameter<double>("control_hz", 50.0);
-  param_node->declare_parameter<double>("cmd_timeout", 0.5);
-  param_node->declare_parameter<bool>("control_base", false);
-
-  const auto address      = param_node->get_parameter("robot_ip").as_string();
-  const auto model        = param_node->get_parameter("model").as_string();
-  const auto control_hz   = param_node->get_parameter("control_hz").as_double();
-  const auto cmd_timeout  = param_node->get_parameter("cmd_timeout").as_double();
-  const auto control_base = param_node->get_parameter("control_base").as_bool();
+  // 템플릿 분기에 필요한 model만 임시 노드로 읽고 즉시 소멸
+  std::string model;
+  {
+    auto tmp = rclcpp::Node::make_shared("control_joint_node_model_reader");
+    tmp->declare_parameter("model", "a");
+    model = tmp->get_parameter("model").as_string();
+  }
 
   try {
     if (model == "a") {
-      auto node = std::make_shared<RBY1JointControlNode<rb::y1_model::A>>(
-          address, control_hz, cmd_timeout, control_base);
-      rclcpp::spin(node);
+      rclcpp::spin(std::make_shared<RBY1JointControlNode<rb::y1_model::A>>());
     } else if (model == "m") {
-      auto node = std::make_shared<RBY1JointControlNode<rb::y1_model::M>>(
-          address, control_hz, cmd_timeout, control_base);
-      rclcpp::spin(node);
+      rclcpp::spin(std::make_shared<RBY1JointControlNode<rb::y1_model::M>>());
     } else if (model == "ub") {
-      auto node = std::make_shared<RBY1JointControlNode<rb::y1_model::UB>>(
-          address, control_hz, cmd_timeout, control_base);
-      rclcpp::spin(node);
+      rclcpp::spin(std::make_shared<RBY1JointControlNode<rb::y1_model::UB>>());
     } else {
-      RCLCPP_FATAL(param_node->get_logger(),
+      RCLCPP_ERROR(rclcpp::get_logger("control_joint_node"),
                    "Unknown model: '%s'. Use 'a', 'm', or 'ub'.", model.c_str());
       return 1;
     }
   } catch (const std::exception& e) {
-    RCLCPP_FATAL(param_node->get_logger(), "Joint control node error: %s", e.what());
+    RCLCPP_ERROR(rclcpp::get_logger("control_joint_node"),
+                 "Joint control node error: %s", e.what());
     return 1;
   }
 

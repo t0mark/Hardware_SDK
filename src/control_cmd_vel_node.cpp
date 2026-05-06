@@ -1,9 +1,11 @@
 #include <chrono>
+#include <limits>
 #include <mutex>
 #include <string>
 
 #include <rclcpp/rclcpp.hpp>
 #include <geometry_msgs/msg/twist.hpp>
+#include <sensor_msgs/msg/laser_scan.hpp>
 
 #include <rby1-sdk/model.h>
 #include <rby1-sdk/robot.h>
@@ -23,13 +25,26 @@ class RBY1MobilityNode : public rclcpp::Node {
   using StreamT = rb::RobotCommandStreamHandler<ModelT>;
 
  public:
-  explicit RBY1MobilityNode(const std::string& address, double control_hz,
-                             double cmd_vel_timeout)
-      : Node("control_cmd_vel_node"),
-        address_(address),
-        min_time_(1.0 / control_hz),
-        cmd_vel_timeout_(cmd_vel_timeout) {
-    // UB 모델은 모바일 베이스 없음
+  RBY1MobilityNode()
+      : Node("control_cmd_vel_node") {
+    // 표준 ROS2 패턴: 생성자에서 파라미터 선언 및 읽기
+    declare_parameter("robot_ip",            "rby1.local:50051");
+    declare_parameter("control_hz",          10.0);
+    declare_parameter("cmd_vel_timeout",     0.5);
+    declare_parameter("avoidance",           false);
+    declare_parameter("avoidance_distance",  1.0);
+    declare_parameter("avoidance_turn_speed",0.5);
+    declare_parameter("robot_half_width",    0.35);
+
+    address_             = get_parameter("robot_ip").as_string();
+    const double control_hz = get_parameter("control_hz").as_double();
+    min_time_            = 1.0 / control_hz;
+    cmd_vel_timeout_     = get_parameter("cmd_vel_timeout").as_double();
+    avoidance_           = get_parameter("avoidance").as_bool();
+    avoidance_dist_      = get_parameter("avoidance_distance").as_double();
+    avoidance_turn_speed_= get_parameter("avoidance_turn_speed").as_double();
+    robot_half_width_    = get_parameter("robot_half_width").as_double();
+
     if constexpr (ModelT::kMobilityIdx.size() == 0) {
       RCLCPP_WARN(get_logger(),
                   "Model UB has no mobile base. Mobility commands will be ignored.");
@@ -47,6 +62,19 @@ class RBY1MobilityNode : public rclcpp::Node {
     timer_ = create_wall_timer(
         std::chrono::duration_cast<std::chrono::nanoseconds>(period),
         [this]() { timer_callback(); });
+
+    if (avoidance_) {
+      scan_sub_ = create_subscription<sensor_msgs::msg::LaserScan>(
+          "/scan", 10,
+          [this](const sensor_msgs::msg::LaserScan::SharedPtr msg) {
+            std::lock_guard<std::mutex> lock(scan_mutex_);
+            latest_scan_ = *msg;
+            has_scan_ = true;
+          });
+      RCLCPP_INFO(get_logger(),
+                  "Avoidance enabled (lookahead=%.2fm, half_width=%.2fm, turn_speed=%.2f rad/s)",
+                  avoidance_dist_, robot_half_width_, avoidance_turn_speed_);
+    }
 
     RCLCPP_INFO(get_logger(),
                 "Mobility node ready. Subscribed to /cmd_vel (timeout=%.2fs, "
@@ -70,10 +98,63 @@ class RBY1MobilityNode : public rclcpp::Node {
     RCLCPP_INFO(get_logger(), "CommandStream ready (priority=1)");
   }
 
+  // ── LaserScan 기반 장애물 회피 (로봇 폭 기준 직사각형 충돌 판정) ──────────
+  void apply_avoidance(geometry_msgs::msg::Twist& twist) {
+    if (!avoidance_ || twist.linear.x <= 0.0) return;
+
+    sensor_msgs::msg::LaserScan scan;
+    {
+      std::lock_guard<std::mutex> lock(scan_mutex_);
+      if (!has_scan_) return;
+      scan = latest_scan_;
+    }
+
+    const float hw       = static_cast<float>(robot_half_width_);
+    const float lookahead = static_cast<float>(avoidance_dist_);
+
+    bool  front_blocked = false;
+    float left_gap  = std::numeric_limits<float>::infinity();
+    float right_gap = std::numeric_limits<float>::infinity();
+
+    for (size_t i = 0; i < scan.ranges.size(); ++i) {
+      float r = scan.ranges[i];
+      if (r <= 0.0f || r > scan.range_max) continue;
+
+      const float angle = scan.angle_min + static_cast<float>(i) * scan.angle_increment;
+      const float px = r * std::cos(angle);
+      const float py = r * std::sin(angle);
+
+      // 전방 충돌 경로: 로봇 폭 이내, 0 ~ lookahead
+      if (px > 0.0f && px <= lookahead && std::abs(py) <= hw)
+        front_blocked = true;
+
+      // 전방 반구에서 좌우 여유 공간 측정
+      if (px > 0.0f && px <= lookahead) {
+        if (py > hw)
+          left_gap  = std::min(left_gap,  py - hw);
+        else if (py < -hw)
+          right_gap = std::min(right_gap, -py - hw);
+      }
+    }
+
+    if (!front_blocked) return;
+
+    const bool left_ok  = left_gap  > static_cast<float>(avoidance_dist_);
+    const bool right_ok = right_gap > static_cast<float>(avoidance_dist_);
+
+    if (!left_ok && !right_ok) {
+      twist.linear.x  = 0.0;
+      twist.angular.z = 0.0;
+    } else {
+      const bool go_left = left_ok && (!right_ok || left_gap >= right_gap);
+      twist.angular.z = go_left ? avoidance_turn_speed_ : -avoidance_turn_speed_;
+    }
+  }
+
   // ── /cmd_vel 콜백 ─────────────────────────────────────────────────────────
   void cmd_vel_callback(const geometry_msgs::msg::Twist::SharedPtr msg) {
     std::lock_guard<std::mutex> lock(twist_mutex_);
-    latest_twist_ = *msg;
+    latest_twist_  = *msg;
     last_cmd_time_ = now();
   }
 
@@ -89,18 +170,18 @@ class RBY1MobilityNode : public rclcpp::Node {
       std::lock_guard<std::mutex> lock(twist_mutex_);
 
       if (last_cmd_time_.nanoseconds() == 0) {
-        // 아직 cmd_vel을 한 번도 받지 않음 → 전송 스킵
         return;
       }
 
       auto elapsed = (now() - last_cmd_time_).seconds();
       if (elapsed > cmd_vel_timeout_) {
-        // 타임아웃: 정지 명령 전송
         twist = geometry_msgs::msg::Twist{};
       } else {
         twist = latest_twist_;
       }
     }
+
+    apply_avoidance(twist);
 
     Eigen::Vector2d lin;
     lin << twist.linear.x, twist.linear.y;
@@ -139,15 +220,25 @@ class RBY1MobilityNode : public rclcpp::Node {
   double min_time_;
   double cmd_vel_timeout_;
 
+  bool avoidance_;
+  double avoidance_dist_;
+  double avoidance_turn_speed_;
+  double robot_half_width_;
+
   std::shared_ptr<RobotT> robot_;
   std::unique_ptr<StreamT> stream_;
 
   rclcpp::Subscription<geometry_msgs::msg::Twist>::SharedPtr cmd_vel_sub_;
+  rclcpp::Subscription<sensor_msgs::msg::LaserScan>::SharedPtr scan_sub_;
   rclcpp::TimerBase::SharedPtr timer_;
 
   std::mutex twist_mutex_;
   geometry_msgs::msg::Twist latest_twist_{};
   rclcpp::Time last_cmd_time_{0, 0, RCL_ROS_TIME};
+
+  std::mutex scan_mutex_;
+  sensor_msgs::msg::LaserScan latest_scan_{};
+  bool has_scan_{false};
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -156,37 +247,29 @@ class RBY1MobilityNode : public rclcpp::Node {
 int main(int argc, char** argv) {
   rclcpp::init(argc, argv);
 
-  auto param_node = rclcpp::Node::make_shared("control_cmd_vel_node_param_reader");
-  param_node->declare_parameter<std::string>("robot_ip", "rby1.local:50051");
-  param_node->declare_parameter<std::string>("model", "a");
-  param_node->declare_parameter<double>("control_hz", 10.0);
-  param_node->declare_parameter<double>("cmd_vel_timeout", 0.5);
-
-  const auto address     = param_node->get_parameter("robot_ip").as_string();
-  const auto model       = param_node->get_parameter("model").as_string();
-  const auto control_hz  = param_node->get_parameter("control_hz").as_double();
-  const auto timeout     = param_node->get_parameter("cmd_vel_timeout").as_double();
+  // 템플릿 분기에 필요한 model만 임시 노드로 읽고 즉시 소멸
+  std::string model;
+  {
+    auto tmp = rclcpp::Node::make_shared("control_cmd_vel_node_model_reader");
+    tmp->declare_parameter("model", "a");
+    model = tmp->get_parameter("model").as_string();
+  }
 
   try {
     if (model == "a") {
-      auto node = std::make_shared<RBY1MobilityNode<rb::y1_model::A>>(
-          address, control_hz, timeout);
-      rclcpp::spin(node);
+      rclcpp::spin(std::make_shared<RBY1MobilityNode<rb::y1_model::A>>());
     } else if (model == "m") {
-      auto node = std::make_shared<RBY1MobilityNode<rb::y1_model::M>>(
-          address, control_hz, timeout);
-      rclcpp::spin(node);
+      rclcpp::spin(std::make_shared<RBY1MobilityNode<rb::y1_model::M>>());
     } else if (model == "ub") {
-      auto node = std::make_shared<RBY1MobilityNode<rb::y1_model::UB>>(
-          address, control_hz, timeout);
-      rclcpp::spin(node);
+      rclcpp::spin(std::make_shared<RBY1MobilityNode<rb::y1_model::UB>>());
     } else {
-      RCLCPP_FATAL(param_node->get_logger(),
+      RCLCPP_ERROR(rclcpp::get_logger("control_cmd_vel_node"),
                    "Unknown model: '%s'. Use 'a', 'm', or 'ub'.", model.c_str());
       return 1;
     }
   } catch (const std::exception& e) {
-    RCLCPP_FATAL(param_node->get_logger(), "Mobility node error: %s", e.what());
+    RCLCPP_ERROR(rclcpp::get_logger("control_cmd_vel_node"),
+                 "Mobility node error: %s", e.what());
     return 1;
   }
 

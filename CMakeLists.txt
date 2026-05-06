@@ -17,7 +17,7 @@ target_link_libraries(turn_on_hardware_node rby1-sdk::rby1-sdk)
 
 # ── control_cmd_vel_node (C++) ────────────────────────────────────────────────
 add_executable(control_cmd_vel_node src/control_cmd_vel_node.cpp)
-ament_target_dependencies(control_cmd_vel_node rclcpp geometry_msgs)
+ament_target_dependencies(control_cmd_vel_node rclcpp geometry_msgs sensor_msgs)
 target_link_libraries(control_cmd_vel_node rby1-sdk::rby1-sdk)
 
 # ── control_moveit_node (C++) ─────────────────────────────────────────────────
